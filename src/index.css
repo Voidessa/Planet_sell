@@ -5,18 +5,18 @@
   --font-serif: 'Cinzel', Georgia, serif;
   --font-mono: 'Space Grotesk', ui-monospace, monospace;
 
-  /* Colors - Luxury Palette (Quiet Luxury / Gold & Obsidian) */
-  --bg-deep: #03020a;
-  --bg-card: rgba(15, 13, 26, 0.6);
-  --bg-card-hover: rgba(22, 19, 38, 0.75);
+  /* Colors - Premium Luxury Burgundy & Obsidian */
+  --bg-deep: #030208;
+  --bg-card: rgba(14, 11, 22, 0.65);
+  --bg-card-hover: rgba(22, 17, 34, 0.8);
   
   --border-glass: rgba(255, 255, 255, 0.05);
-  --border-glass-hover: rgba(212, 175, 55, 0.15);
+  --border-glass-hover: rgba(128, 0, 32, 0.22);
   
-  --gold-primary: #d4af37;
-  --gold-light: #f3e7c4;
-  --gold-dark: #aa7c11;
-  --gold-gradient: linear-gradient(135deg, #f3e7c4 0%, #d4af37 50%, #aa7c11 100%);
+  --gold-primary: oklch(44% 0.18 20); /* Exquisite Burgundy Wine */
+  --gold-light: oklch(90% 0.06 20);   /* Warm Rose Cream */
+  --gold-dark: oklch(28% 0.1 20);     /* Deep Velvet Maroon */
+  --gold-gradient: linear-gradient(135deg, oklch(58% 0.14 20) 0%, oklch(44% 0.18 20) 50%, oklch(28% 0.1 20) 100%);
   
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
@@ -50,11 +50,11 @@ body {
   background: var(--bg-deep);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(212, 175, 55, 0.15);
+  background: rgba(128, 0, 32, 0.2);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(212, 175, 55, 0.3);
+  background: rgba(128, 0, 32, 0.35);
 }
 
 .text-gold {
@@ -65,10 +65,10 @@ body {
   background: var(--gold-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 30px rgba(212, 175, 55, 0.1);
+  text-shadow: 0 0 30px rgba(128, 0, 32, 0.15);
 }
 
-/* Glassmorphism Luxury Card */
+/* Glassmorphism Card */
 .glass-card {
   background: var(--bg-card);
   backdrop-filter: blur(20px);
@@ -81,7 +81,7 @@ body {
 .glass-card:hover {
   border-color: var(--border-glass-hover);
   background: var(--bg-card-hover);
-  box-shadow: 0 15px 45px rgba(212, 175, 55, 0.05);
+  box-shadow: 0 15px 45px rgba(128, 0, 32, 0.08);
 }
 
 /* Header Navbar */
@@ -136,13 +136,13 @@ body {
 }
 
 .nav-link-btn:hover {
-  color: var(--gold-primary);
+  color: var(--gold-light);
 }
 
 .nav-link-btn.active-link {
-  color: var(--gold-primary);
-  background: rgba(212, 175, 55, 0.06);
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  color: var(--gold-light);
+  background: rgba(128, 0, 32, 0.12);
+  border: 1px solid rgba(128, 0, 32, 0.3);
 }
 
 /* Luxury buttons */
@@ -163,14 +163,14 @@ body {
 
 .btn-lux-primary {
   background: var(--gold-gradient);
-  color: #03020a;
+  color: #ffffff;
   font-weight: 700;
-  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.25);
+  box-shadow: 0 4px 20px rgba(128, 0, 32, 0.35);
 }
 
 .btn-lux-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(212, 175, 55, 0.45);
+  box-shadow: 0 6px 25px rgba(128, 0, 32, 0.55);
 }
 
 .btn-lux-secondary {
@@ -181,7 +181,7 @@ body {
 
 .btn-lux-secondary:hover {
   border-color: var(--gold-primary);
-  background: rgba(212, 175, 55, 0.05);
+  background: rgba(128, 0, 32, 0.08);
   transform: translateY(-2px);
 }
 
@@ -196,7 +196,7 @@ body {
 }
 
 .btn-glow:hover {
-  box-shadow: 0 0 25px rgba(212, 175, 55, 0.35);
+  box-shadow: 0 0 25px rgba(128, 0, 32, 0.4);
 }
 
 /* Content Frame */
@@ -208,9 +208,9 @@ body {
 }
 
 .luxury-badge {
-  background: rgba(212, 175, 55, 0.05);
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  color: var(--gold-primary);
+  background: rgba(128, 0, 32, 0.08);
+  border: 1px solid rgba(128, 0, 32, 0.3);
+  color: var(--gold-light);
   padding: 6px 14px;
   border-radius: 30px;
   font-size: 0.75rem;
@@ -221,14 +221,14 @@ body {
   align-items: center;
 }
 
-/* Intro animation cinematic screens */
+/* Intro animation screen */
 .luxury-intro-viewport {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: #03020a;
+  background: #030208;
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -241,7 +241,7 @@ body {
   font-size: 1.8rem;
   font-weight: 400;
   letter-spacing: 2px;
-  color: var(--gold-primary);
+  color: var(--gold-light);
   text-align: center;
   max-width: 700px;
   line-height: 1.5;
@@ -310,8 +310,8 @@ body {
   width: 320px;
   height: 320px;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #443721, #0c0a06);
-  box-shadow: 0 0 60px rgba(212, 175, 55, 0.15), inset -20px -20px 60px rgba(0,0,0,0.9);
+  background: radial-gradient(circle at 30% 30%, #4a0418, #0a0205);
+  box-shadow: 0 0 60px rgba(128, 0, 32, 0.25), inset -20px -20px 60px rgba(0,0,0,0.95);
   animation: flare-pulse 4s ease-in-out infinite alternate;
 }
 
@@ -319,7 +319,7 @@ body {
   position: absolute;
   width: 480px;
   height: 160px;
-  border: 1px solid rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(128, 0, 32, 0.15);
   border-radius: 50%;
   transform: rotate(-15deg);
   pointer-events: none;
@@ -343,7 +343,7 @@ body {
   font-family: var(--font-mono);
   font-size: 2.2rem;
   font-weight: 700;
-  color: var(--gold-primary);
+  color: var(--gold-light);
   background: var(--gold-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -382,7 +382,7 @@ body {
   line-height: 1.5;
 }
 
-/* Explorer Layout (3D Redesign) */
+/* Explorer Layout */
 .explorer-container-lux {
   display: flex;
   flex-direction: column;
@@ -412,9 +412,9 @@ body {
 
 .tab-btn-lux.active {
   background: var(--gold-gradient);
-  color: #03020a;
+  color: #ffffff;
   font-weight: 700;
-  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+  box-shadow: 0 4px 15px rgba(128, 0, 32, 0.3);
 }
 
 .explorer-content-split {
@@ -445,7 +445,7 @@ body {
 
 .hud-lbl {
   font-size: 0.7rem;
-  color: var(--gold-primary);
+  color: var(--gold-light);
   font-family: var(--font-mono);
   letter-spacing: 1px;
 }
@@ -493,7 +493,7 @@ body {
   margin: 0;
 }
 
-/* Clean luxury package selector buttons column */
+/* Package picker */
 .package-picker-lux {
   display: flex;
   flex-direction: column;
@@ -520,14 +520,14 @@ body {
 }
 
 .package-btn-lux:hover {
-  background: rgba(212, 175, 55, 0.03);
-  border-color: rgba(212, 175, 55, 0.25);
+  background: rgba(128, 0, 32, 0.05);
+  border-color: rgba(128, 0, 32, 0.3);
 }
 
 .package-btn-lux.active {
   border-color: var(--gold-primary);
-  background: rgba(212, 175, 55, 0.05);
-  box-shadow: 0 0 15px rgba(212, 175, 55, 0.08);
+  background: rgba(128, 0, 32, 0.12);
+  box-shadow: 0 0 15px rgba(128, 0, 32, 0.1);
 }
 
 .pkg-left {
@@ -550,10 +550,10 @@ body {
 .pkg-price {
   font-family: var(--font-mono);
   font-weight: 700;
-  color: var(--gold-primary);
+  color: var(--gold-light);
 }
 
-/* Sold Details HUD style */
+/* Sold box */
 .status-box-sold {
   background: rgba(239, 68, 68, 0.02);
   border: 1px solid rgba(239, 68, 68, 0.15);
@@ -589,7 +589,7 @@ body {
 .sold-dedication-quote {
   font-style: italic;
   color: var(--text-secondary);
-  border-left: 1.5px solid rgba(212, 175, 55, 0.4);
+  border-left: 1.5px solid rgba(128, 0, 32, 0.5);
   padding-left: 10px;
   margin-top: 6px;
   line-height: 1.4;
@@ -610,7 +610,7 @@ body {
   text-transform: uppercase;
 }
 
-/* Customizer layout */
+/* Customizer form */
 .customizer-container-lux {
   display: flex;
   gap: 32px;
@@ -661,7 +661,7 @@ body {
 .lux-textarea:focus {
   outline: none;
   border-color: var(--gold-primary);
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.1);
+  box-shadow: 0 0 10px rgba(128, 0, 32, 0.15);
 }
 
 .lux-textarea {
@@ -694,7 +694,7 @@ body {
 .theme-btn-lux.active {
   border-color: var(--gold-primary);
   color: var(--text-primary);
-  background: rgba(212, 175, 55, 0.05);
+  background: rgba(128, 0, 32, 0.1);
 }
 
 .order-summary-lux {
@@ -723,7 +723,7 @@ body {
   letter-spacing: 1px;
 }
 
-/* Quiet Luxury Certificate Styling */
+/* Luxury parchment certificate */
 .certificate-card-lux {
   width: 100%;
   aspect-ratio: 1.414/1;
@@ -749,58 +749,58 @@ body {
   bottom: 12px;
   left: 12px;
   right: 12px;
-  border: 0.5px solid rgba(212, 175, 55, 0.4);
+  border: 0.5px solid rgba(128, 0, 32, 0.4);
 }
 
-/* Cream Gold / Black Onyx Theme Colors */
+/* Colors themes */
 .cert-lux-gold {
   background: #fdfbf7;
-  color: #1a150e;
+  color: #1a120e;
 }
 .cert-lux-gold .cert-lux-registry {
-  color: #78613c;
+  color: #7c4c52;
 }
 .cert-lux-gold .cert-lux-title {
-  color: #8c7340;
+  color: #8c404c;
 }
 .cert-lux-gold .cert-lux-owner {
-  color: #1a150e;
-  border-bottom: 1px solid rgba(140, 115, 64, 0.3);
+  color: #1a120e;
+  border-bottom: 1px solid rgba(140, 64, 76, 0.3);
 }
 .cert-lux-gold .cert-lux-statement,
 .cert-lux-gold .cert-lux-intro {
-  color: #615a51;
+  color: #615254;
 }
 .cert-lux-gold .cert-lux-body-name {
-  color: #8c7340;
+  color: #8c404c;
 }
 .cert-lux-gold .cert-lux-specs {
-  background: #f7f3eb;
-  border: 1px solid rgba(140, 115, 64, 0.15);
+  background: #f7ebeb;
+  border: 1px solid rgba(140, 64, 76, 0.15);
 }
 .cert-lux-gold .spec-lbl-lux {
-  color: #8c7f70;
+  color: #8c7075;
 }
 .cert-lux-gold .spec-val-lux {
-  color: #1a150e;
+  color: #1a120e;
 }
 .cert-lux-gold .cert-lux-dedication {
-  color: #4a4238;
+  color: #4a383b;
 }
 .cert-lux-gold .cert-lux-date,
 .cert-lux-gold .cert-lux-signature {
-  color: #787063;
+  color: #786367;
 }
 .cert-lux-gold .sig-line-lux {
   border-top-color: rgba(0,0,0,0.15);
 }
 .cert-lux-gold .cert-lux-seal {
-  background: #d4af37;
+  background: oklch(44% 0.18 20);
   color: #fdfbf7;
-  border: 1px solid #aa7c11;
+  border: 1px solid oklch(28% 0.1 20);
 }
 
-/* Onyx Style */
+/* Black Onyx style */
 .cert-lux-onyx {
   background: #0a0a0f;
   color: #f8fafc;
@@ -809,18 +809,18 @@ body {
   color: var(--text-secondary);
 }
 .cert-lux-onyx .cert-lux-title {
-  color: var(--gold-primary);
+  color: var(--gold-light);
 }
 .cert-lux-onyx .cert-lux-owner {
   color: #ffffff;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+  border-bottom: 1px solid rgba(128, 0, 32, 0.3);
 }
 .cert-lux-onyx .cert-lux-statement,
 .cert-lux-onyx .cert-lux-intro {
   color: var(--text-secondary);
 }
 .cert-lux-onyx .cert-lux-body-name {
-  color: var(--gold-primary);
+  color: var(--gold-light);
 }
 .cert-lux-onyx .cert-lux-specs {
   background: rgba(255,255,255,0.02);
@@ -844,8 +844,8 @@ body {
 }
 .cert-lux-onyx .cert-lux-seal {
   background: transparent;
-  color: var(--gold-primary);
-  border: 1px solid var(--gold-primary);
+  color: var(--gold-light);
+  border: 1px solid var(--gold-light);
 }
 
 .cert-lux-content {
@@ -984,7 +984,7 @@ body {
   margin-top: 1px;
 }
 
-/* Checkout Split */
+/* Checkout */
 .checkout-split-lux {
   display: flex;
   gap: 32px;
@@ -1011,7 +1011,7 @@ body {
 }
 
 .btn-back-lux:hover {
-  color: var(--gold-primary);
+  color: var(--gold-light);
 }
 
 .form-row-lux {
@@ -1065,14 +1065,14 @@ body {
   line-height: 1.4;
 }
 
-/* Loading payment screen */
+/* Loading screen */
 .checkout-loading-lux {
   padding: 64px 32px;
   max-width: 500px;
   margin: 64px auto;
 }
 
-/* Successful Checkout (Interactive Envelope Fold) */
+/* Successful checkout envelope */
 .checkout-success-lux {
   max-width: 600px;
   margin: 32px auto;
@@ -1089,8 +1089,8 @@ body {
   width: 90px;
   height: 90px;
   border-radius: 50%;
-  background: rgba(212, 175, 55, 0.08);
-  border: 1px solid rgba(212, 175, 55, 0.25);
+  background: rgba(128, 0, 32, 0.12);
+  border: 1px solid rgba(128, 0, 32, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1100,8 +1100,8 @@ body {
 .opened-gift-letter-container {
   padding: 48px;
   text-align: left;
-  border: 1.5px solid rgba(212, 175, 55, 0.3);
-  box-shadow: 0 20px 50px rgba(212, 175, 55, 0.08);
+  border: 1.5px solid rgba(128, 0, 32, 0.3);
+  box-shadow: 0 20px 50px rgba(128, 0, 32, 0.08);
 }
 
 .gold-letter-header {
@@ -1113,7 +1113,7 @@ body {
   font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 3px;
-  color: var(--gold-primary);
+  color: var(--gold-light);
 }
 
 .gold-letter-header h2 {
@@ -1148,7 +1148,7 @@ body {
 
 .letter-sharing-box {
   background: rgba(255, 255, 255, 0.01);
-  border: 1px dashed rgba(212, 175, 55, 0.2);
+  border: 1px dashed rgba(128, 0, 32, 0.3);
   padding: 20px;
   border-radius: 8px;
   margin-top: 24px;
@@ -1178,7 +1178,7 @@ body {
   justify-content: center;
 }
 
-/* Registry page (Ledger list) */
+/* Registry Database */
 .registry-container-lux {
   display: flex;
   flex-direction: column;
@@ -1225,7 +1225,7 @@ body {
 .lux-input-search:focus {
   outline: none;
   border-color: var(--gold-primary);
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.08);
+  box-shadow: 0 0 10px rgba(128, 0, 32, 0.12);
 }
 
 .filter-tabs-lux {
@@ -1244,14 +1244,14 @@ body {
 }
 
 .filter-tab-lux:hover {
-  border-color: rgba(212, 175, 55, 0.3);
+  border-color: rgba(128, 0, 32, 0.3);
   color: var(--text-primary);
 }
 
 .filter-tab-lux.active {
-  background: rgba(212, 175, 55, 0.05);
+  background: rgba(128, 0, 32, 0.1);
   border-color: var(--gold-primary);
-  color: var(--gold-primary);
+  color: var(--gold-light);
 }
 
 .ledger-table {
@@ -1286,21 +1286,21 @@ body {
 }
 
 .ledger-body-row:hover {
-  background: rgba(212, 175, 55, 0.015);
+  background: rgba(128, 0, 32, 0.03);
 }
 
 .no-results-lux {
   padding: 64px 32px;
 }
 
-/* Gift Viewer Screen */
+/* Gift Viewer */
 .gift-viewer-viewport-lux {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: #03020a;
+  background: #030208;
   z-index: 1000;
   overflow: hidden;
   display: flex;
@@ -1358,8 +1358,8 @@ body {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: rgba(212, 175, 55, 0.08);
-  border: 1px solid rgba(212, 175, 55, 0.25);
+  background: rgba(128, 0, 32, 0.12);
+  border: 1px solid rgba(128, 0, 32, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1368,7 +1368,7 @@ body {
 
 .envelope-opened-card {
   padding: 40px;
-  border: 1.5px solid rgba(212, 175, 55, 0.3);
+  border: 1.5px solid rgba(128, 0, 32, 0.3);
   box-shadow: 0 25px 60px rgba(0,0,0,0.8);
 }
 
@@ -1416,7 +1416,7 @@ body {
 }
 
 .gift-letter-quote {
-  background: rgba(212, 175, 55, 0.03);
+  background: rgba(128, 0, 32, 0.05);
   border-left: 2px solid var(--gold-primary);
   padding: 12px 18px;
   border-radius: 0 8px 8px 0;
@@ -1464,19 +1464,19 @@ body {
   color: var(--text-muted);
 }
 
-/* Animations adjustments */
+/* Animations */
 @keyframes spin-hologram {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
 @keyframes flare-pulse {
-  0% { box-shadow: 0 0 50px rgba(212, 175, 55, 0.1), inset -20px -20px 60px rgba(0,0,0,0.9); }
-  100% { box-shadow: 0 0 70px rgba(212, 175, 55, 0.25), inset -20px -20px 60px rgba(0,0,0,0.95); }
+  0% { box-shadow: 0 0 50px rgba(128, 0, 32, 0.15), inset -20px -20px 60px rgba(0,0,0,0.95); }
+  100% { box-shadow: 0 0 70px rgba(128, 0, 32, 0.35), inset -20px -20px 60px rgba(0,0,0,0.98); }
 }
 
 .animate-glow {
-  box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
+  box-shadow: 0 0 15px rgba(128, 0, 32, 0.25);
 }
 
 .icon-pulse {
@@ -1531,24 +1531,24 @@ body {
     max-width: 100%;
     box-shadow: none;
     background: #fdfbf7 !important;
-    color: #1a150e !important;
+    color: #1a120e !important;
   }
   .cert-lux-content * {
-    color: #1a150e !important;
+    color: #1a120e !important;
   }
   .cert-lux-border-outer {
-    border-color: #d4af37 !important;
+    border-color: oklch(44% 0.18 20) !important;
   }
   .cert-lux-border-inner {
-    border-color: rgba(140, 115, 64, 0.4) !important;
+    border-color: rgba(140, 64, 76, 0.4) !important;
   }
   .cert-lux-specs {
-    background: #f7f3eb !important;
-    border-color: rgba(140, 115, 64, 0.15) !important;
+    background: #f7ebeb !important;
+    border-color: rgba(140, 64, 76, 0.15) !important;
   }
 }
 
-/* Mobile Responsiveness styling overrides */
+/* Mobile responsive styling overrides */
 @media (max-width: 992px) {
   .explorer-content-split {
     flex-direction: column;
