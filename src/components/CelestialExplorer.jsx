@@ -1,309 +1,170 @@
 import React, { useState, useEffect } from 'react';
-import { HelpCircle, Globe, Award, Sparkles, MapPin } from 'lucide-react';
+import ThreeDGlobe from './ThreeDGlobe';
+import { Compass, Award, ShieldAlert, Check } from 'lucide-react';
 
 const CelestialExplorer = ({ initialBodyId = 'moon', onSelectPlot, registry }) => {
   const [selectedBody, setSelectedBody] = useState(initialBodyId);
-  const [selectedCell, setSelectedCell] = useState(null);
-  const [selectedPackage, setSelectedPackage] = useState('1'); // '1', '3', '7', '12', '50'
+  const [selectedCoordinate, setSelectedCoordinate] = useState(null);
+  const [selectedPackage, setSelectedPackage] = useState('1'); // '1', '7', '50'
 
-  // Pricing config based on body and package
-  const priceConfig = {
-    moon: { base: 990, name: 'Луна', desc: 'Участок в Море Спокойствия (Mare Tranquillitatis)' },
-    mars: { base: 1490, name: 'Марс', desc: 'Равнина Утопия (Utopia Planitia), вблизи горы Олимп' },
-    venus: { base: 1290, name: 'Венера', desc: 'Земля Афродиты (Aphrodite Terra)' },
-    stars: { base: 2490, name: 'Звезда', desc: 'Звезда в созвездии Ориона' },
+  const bodyData = {
+    moon: { name: 'Луна', desc: 'Участки в районе Моря Спокойствия (Mare Tranquillitatis). Вид на Землю включен.', price: 1490 },
+    mars: { name: 'Марс', desc: 'Секторы в долинах Маринер или вблизи вулкана Олимп. Новый дом человечества.', price: 2190 },
+    venus: { name: 'Венера', desc: 'Участки на Земле Афродиты. Планета, названная в честь богини любви.', price: 1890 },
+    stars: { name: 'Именная Звезда', desc: 'Сертификация яркой звезды в созвездии Ориона с вашим именем.', price: 3490 },
   };
 
-  const packageMultiplier = {
-    '1': { mult: 1, discount: 0, label: '1 Акр (Базовый)' },
-    '3': { mult: 2.2, discount: 25, label: '3 Акра (Подарочный)' },
-    '7': { mult: 4.5, discount: 35, label: '7 Акров (Семейный)' },
-    '12': { mult: 6.8, discount: 45, label: '12 Акров (Королевский)' },
-    '50': { mult: 22, discount: 55, label: '50 Акров (Имперский)' },
+  const packageOptions = {
+    '1': { size: '1 Акр', mult: 1, label: 'Стандартный участок' },
+    '7': { size: '7 Акров', mult: 4.8, label: 'Королевское поместье (-30%)' },
+    '50': { size: '50 Акров', mult: 22.5, label: 'Собственное Государство (-55%)' },
   };
 
   const getPrice = (body, pkg) => {
-    const base = priceConfig[body].base;
-    const { mult } = packageMultiplier[pkg];
+    const base = bodyData[body].price;
+    const { mult } = packageOptions[pkg];
     return Math.floor(base * mult);
   };
 
-  // Generate grid coordinates for SVG map (10x10 grid)
-  const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K'];
-  const cols = Array.from({ length: 10 }, (_, i) => i + 1);
-
-  // Check if a cell is sold
-  const getCellStatus = (coord) => {
-    const soldPlot = registry.find(
-      (item) => item.bodyId === selectedBody && item.coordinate === coord
+  // Get status of selected coordinate
+  const getCoordinateStatus = () => {
+    if (!selectedCoordinate) return null;
+    const match = registry.find(
+      (item) => item.bodyId === selectedBody && item.coordinate === selectedCoordinate
     );
-    return soldPlot ? { status: 'sold', owner: soldPlot.owner, dedication: soldPlot.dedication, date: soldPlot.date } : { status: 'available' };
+    return match ? { status: 'sold', owner: match.owner, dedication: match.dedication, date: match.date } : { status: 'available' };
   };
 
-  // Reset selected cell when switching celestial body
   useEffect(() => {
-    setSelectedCell(null);
+    // Auto-select a nice initial coordinate when body changes (e.g. C-5)
+    setSelectedCoordinate('C-5');
   }, [selectedBody]);
 
-  const handleCellClick = (coord) => {
-    const statusInfo = getCellStatus(coord);
-    if (statusInfo.status === 'sold') {
-      setSelectedCell({ coord, ...statusInfo });
-    } else {
-      setSelectedCell({ coord, status: 'available' });
-    }
-  };
-
   const handleBuy = () => {
-    if (!selectedCell || selectedCell.status === 'sold') return;
+    const status = getCoordinateStatus();
+    if (!selectedCoordinate || (status && status.status === 'sold')) return;
 
     onSelectPlot({
       bodyId: selectedBody,
-      bodyName: priceConfig[selectedBody].name,
-      coordinate: selectedCell.coord,
+      bodyName: bodyData[selectedBody].name,
+      coordinate: selectedCoordinate,
       package: selectedPackage,
-      packageName: packageMultiplier[selectedPackage].label,
+      packageName: `${packageOptions[selectedPackage].size} (${packageOptions[selectedPackage].label})`,
       price: getPrice(selectedBody, selectedPackage),
-      description: priceConfig[selectedBody].desc,
+      description: bodyData[selectedBody].desc,
     });
   };
 
+  const status = getCoordinateStatus();
+
   return (
-    <div className="explorer-container">
-      {/* Sidebar Controls */}
-      <div className="explorer-sidebar glass-card animate-fade-in">
-        <div className="tab-menu">
-          {Object.entries(priceConfig).map(([id, cfg]) => (
-            <button
-              key={id}
-              className={`tab-btn ${selectedBody === id ? 'active-tab' : ''}`}
-              onClick={() => setSelectedBody(id)}
-            >
-              {cfg.name}
-            </button>
-          ))}
-        </div>
-
-        <div className="planet-info-panel">
-          <h2 className="planet-title text-neon-cyan">
-            {priceConfig[selectedBody].name}
-          </h2>
-          <p className="planet-desc">{priceConfig[selectedBody].desc}</p>
-          
-          <hr className="divider" />
-
-          {/* Grid Selection Info / Details */}
-          {!selectedCell ? (
-            <div className="info-placeholder">
-              <Globe className="icon-pulse text-neon-cyan" size={40} />
-              <p>Выберите любой сектор на интерактивной координатной карте справа</p>
-            </div>
-          ) : selectedCell.status === 'sold' ? (
-            <div className="owner-detail-card animate-slide-up">
-              <div className="status-badge sold-badge">Сектор Продан</div>
-              <h3 className="coord-title">{selectedCell.coord}</h3>
-              <div className="owner-info">
-                <span className="info-label">Владелец:</span>
-                <span className="owner-name text-neon-pink">{selectedCell.owner}</span>
-              </div>
-              <div className="owner-info">
-                <span className="info-label">Дата регистрации:</span>
-                <span>{selectedCell.date}</span>
-              </div>
-              {selectedCell.dedication && (
-                <div className="dedication-quote">
-                  <p className="quote-text">« {selectedCell.dedication} »</p>
-                </div>
-              )}
-              <p className="info-note">Этот участок уже внесен в реестр. Пожалуйста, выберите свободный сектор (выделенный голубым).</p>
-            </div>
-          ) : (
-            <div className="purchase-config-card animate-slide-up">
-              <div className="status-badge available-badge">Сектор Свободен</div>
-              <h3 className="coord-title text-neon-cyan">{selectedCell.coord}</h3>
-              
-              <div className="package-selector">
-                <label className="info-label">Размер участка:</label>
-                <div className="package-grid">
-                  {Object.entries(packageMultiplier).map(([pkgId, details]) => (
-                    <button
-                      key={pkgId}
-                      className={`package-btn ${selectedPackage === pkgId ? 'active-pkg' : ''}`}
-                      onClick={() => setSelectedPackage(pkgId)}
-                    >
-                      <span className="pkg-lbl">{pkgId} Акриков</span>
-                      {details.discount > 0 && (
-                        <span className="pkg-disc">-{details.discount}%</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="price-breakdown">
-                <div className="price-row">
-                  <span>Стоимость:</span>
-                  <span className="price-num text-neon-pink">
-                    {getPrice(selectedBody, selectedPackage).toLocaleString()} ₽
-                  </span>
-                </div>
-                <div className="price-sub">
-                  <Sparkles size={12} className="text-neon-cyan" />
-                  <span>Пожизненный сертификат и 3D-открытка включены</span>
-                </div>
-              </div>
-
-              <button className="btn btn-primary btn-full btn-glow" onClick={handleBuy}>
-                <Award size={18} />
-                <span>Оформить подарок</span>
-              </button>
-            </div>
-          )}
-        </div>
+    <div className="explorer-container-lux animate-fade-in">
+      
+      {/* 1. Celestial Header Selector */}
+      <div className="explorer-header-tabs glass-card">
+        {Object.entries(bodyData).map(([id, data]) => (
+          <button
+            key={id}
+            className={`tab-btn-lux ${selectedBody === id ? 'active' : ''}`}
+            onClick={() => setSelectedBody(id)}
+          >
+            {data.name}
+          </button>
+        ))}
       </div>
 
-      {/* Main Map Viewer */}
-      <div className="explorer-map-view glass-card animate-fade-in">
-        <div className="map-header">
-          <div className="map-legend">
-            <span className="legend-item"><span className="legend-color avail-color" />Свободно</span>
-            <span className="legend-item"><span className="legend-color sold-color" />Продано</span>
-            <span className="legend-item"><span className="legend-color selected-color" />Выбрано</span>
+      {/* 2. Main Split: 3D Globe + Clean Panel */}
+      <div className="explorer-content-split">
+        
+        {/* Globe Side */}
+        <div className="explorer-globe-viewport glass-card">
+          <div className="globe-overlay-hud">
+            <span className="hud-lbl">3D МАКЕТ ОБЪЕКТА (ИНТЕРАКТИВНЫЙ)</span>
+            <span className="hud-sub">Зажмите и тяните для вращения • Кликните на сферу для выбора участка</span>
           </div>
-          <div className="map-title-label">
-            <MapPin size={16} className="text-neon-cyan" />
-            <span>Секторная Сетка Координат ({priceConfig[selectedBody].name})</span>
-          </div>
+
+          <ThreeDGlobe
+            bodyId={selectedBody}
+            registry={registry}
+            selectedCoordinate={selectedCoordinate}
+            onSelectCoordinate={(coord) => setSelectedCoordinate(coord)}
+          />
         </div>
 
-        {/* SVG Grid Map */}
-        <div className="svg-map-wrapper">
-          <div className="svg-container">
-            <svg 
-              viewBox="0 0 540 540" 
-              className="celestial-svg-grid"
-            >
-              {/* Background Planet Texture / Glow */}
-              <defs>
-                <radialGradient id="planetGlow" cx="50%" cy="50%" r="50%">
-                  {selectedBody === 'moon' && (
-                    <>
-                      <stop offset="0%" stopColor="#4A5568" stopOpacity="0.4" />
-                      <stop offset="100%" stopColor="#0B081B" stopOpacity="0.8" />
-                    </>
-                  )}
-                  {selectedBody === 'mars' && (
-                    <>
-                      <stop offset="0%" stopColor="#9B2C2C" stopOpacity="0.4" />
-                      <stop offset="100%" stopColor="#0B081B" stopOpacity="0.8" />
-                    </>
-                  )}
-                  {selectedBody === 'venus' && (
-                    <>
-                      <stop offset="0%" stopColor="#C05621" stopOpacity="0.4" />
-                      <stop offset="100%" stopColor="#0B081B" stopOpacity="0.8" />
-                    </>
-                  )}
-                  {selectedBody === 'stars' && (
-                    <>
-                      <stop offset="0%" stopColor="#B7791F" stopOpacity="0.3" />
-                      <stop offset="100%" stopColor="#0B081B" stopOpacity="0.9" />
-                    </>
-                  )}
-                </radialGradient>
-              </defs>
-
-              {/* Central Planet Sphere (Visual background) */}
-              <circle cx="270" cy="270" r="230" fill="url(#planetGlow)" />
-              {selectedBody === 'stars' ? (
-                // Draw some constellations in SVG background
-                <g stroke="rgba(255,255,255,0.15)" strokeWidth="1" strokeDasharray="3 3">
-                  <line x1="100" y1="100" x2="180" y2="150" />
-                  <line x1="180" y1="150" x2="250" y2="130" />
-                  <line x1="250" y1="130" x2="320" y2="200" />
-                  <line x1="320" y1="200" x2="410" y2="180" />
-                  <line x1="270" y1="350" x2="380" y2="400" />
-                  <line x1="150" y1="380" x2="200" y2="450" />
-                </g>
-              ) : (
-                // Draw circular craters/seas for planets
-                <g fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="1">
-                  <circle cx="270" cy="270" r="160" />
-                  <circle cx="270" cy="270" r="90" />
-                  <circle cx="200" cy="200" r="45" fill="rgba(255,255,255,0.02)" />
-                  <circle cx="340" cy="320" r="30" fill="rgba(255,255,255,0.01)" />
-                  <circle cx="310" cy="180" r="15" fill="rgba(255,255,255,0.015)" />
-                </g>
-              )}
-
-              {/* Grid cells */}
-              {rows.map((row, rIdx) => {
-                const y = 40 + rIdx * 46;
-                return cols.map((col, cIdx) => {
-                  const x = 40 + cIdx * 46;
-                  const coord = `${row}-${col}`;
-                  const statusInfo = getCellStatus(coord);
-                  const isSelected = selectedCell?.coord === coord;
-                  
-                  // Style colors based on status
-                  let fill = 'rgba(6, 182, 212, 0.04)';
-                  let stroke = 'rgba(6, 182, 212, 0.2)';
-                  let cursor = 'pointer';
-
-                  if (statusInfo.status === 'sold') {
-                    fill = 'rgba(236, 72, 153, 0.25)'; // Sold pink
-                    stroke = 'rgba(236, 72, 153, 0.5)';
-                  }
-                  if (isSelected) {
-                    fill = statusInfo.status === 'sold' 
-                      ? 'rgba(236, 72, 153, 0.45)' 
-                      : 'rgba(6, 182, 212, 0.3)';
-                    stroke = '#ffffff';
-                  }
-
-                  return (
-                    <g 
-                      key={coord} 
-                      onClick={() => handleCellClick(coord)}
-                      style={{ cursor }}
-                      className="grid-group"
-                    >
-                      <rect
-                        x={x}
-                        y={y}
-                        width="42"
-                        height="42"
-                        rx="4"
-                        fill={fill}
-                        stroke={stroke}
-                        strokeWidth={isSelected ? '2' : '1'}
-                        className={`map-cell-rect ${isSelected ? 'selected-cell-anim' : ''}`}
-                      />
-                      <text
-                        x={x + 21}
-                        y={y + 26}
-                        fill="rgba(255,255,255,0.3)"
-                        fontSize="10"
-                        textAnchor="middle"
-                        pointerEvents="none"
-                        fontFamily="Space Grotesk, sans-serif"
-                      >
-                        {coord}
-                      </text>
-                    </g>
-                  );
-                });
-              })}
-
-              {/* Outer circular frame overlay */}
-              <circle cx="270" cy="270" r="255" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2" />
-              {/* Decorative crosshairs */}
-              <line x1="270" y1="5" x2="270" y2="15" stroke="rgba(0,240,255,0.6)" strokeWidth="2" />
-              <line x1="270" y1="525" x2="270" y2="535" stroke="rgba(0,240,255,0.6)" strokeWidth="2" />
-              <line x1="5" y1="270" x2="15" y2="270" stroke="rgba(0,240,255,0.6)" strokeWidth="2" />
-              <line x1="525" y1="270" x2="535" y2="270" stroke="rgba(0,240,255,0.6)" strokeWidth="2" />
-            </svg>
+        {/* Panel Side */}
+        <div className="explorer-details-panel-lux glass-card">
+          <div className="panel-body-info">
+            <h2 className="text-gold-gradient text-2xl font-bold">{bodyData[selectedBody].name}</h2>
+            <p className="body-description-lux">{bodyData[selectedBody].desc}</p>
           </div>
+
+          <hr className="divider-lux" />
+
+          {/* Coordinate Detail Block */}
+          {selectedCoordinate && (
+            <div className="coordinate-focus-box">
+              <span className="info-label">ВЫБРАННЫЙ СЕКТОР:</span>
+              <h3 className="coordinate-title-lux font-mono text-neon-gold">
+                COORD: {selectedCoordinate} ({selectedBody === 'stars' ? 'RA/DEC' : 'LAT/LON'})
+              </h3>
+
+              {status && status.status === 'sold' ? (
+                // Sold Info
+                <div className="status-box-sold animate-slide-up">
+                  <div className="sold-warning-tag">
+                    <ShieldAlert size={14} />
+                    <span>Участок Занят</span>
+                  </div>
+                  <div className="sold-details">
+                    <div className="sold-row">
+                      <span>Владелец:</span>
+                      <span className="owner-val text-white">{status.owner}</span>
+                    </div>
+                    {status.dedication && (
+                      <p className="sold-dedication-quote">« {status.dedication} »</p>
+                    )}
+                  </div>
+                  <p className="note-text-lux mt-2">Координаты уже закреплены. Пожалуйста, поверните глобус и выберите другую точку.</p>
+                </div>
+              ) : (
+                // Available Selection
+                <div className="status-box-available animate-slide-up">
+                  <div className="available-success-tag">
+                    <Check size={14} />
+                    <span>Доступен к регистрации</span>
+                  </div>
+
+                  {/* Clean Package Picker */}
+                  <div className="package-picker-lux">
+                    <label className="info-label">ВЫБЕРИТЕ РАЗМЕР УЧАСТКА:</label>
+                    <div className="package-options-column">
+                      {Object.entries(packageOptions).map(([key, opt]) => (
+                        <button
+                          key={key}
+                          className={`package-btn-lux ${selectedPackage === key ? 'active' : ''}`}
+                          onClick={() => setSelectedPackage(key)}
+                        >
+                          <div className="pkg-left">
+                            <span className="pkg-size">{opt.size}</span>
+                            <span className="pkg-lbl">{opt.label}</span>
+                          </div>
+                          <span className="pkg-price">{getPrice(selectedBody, key).toLocaleString()} ₽</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button 
+                    className="btn-lux btn-lux-primary btn-full btn-glow mt-4" 
+                    onClick={handleBuy}
+                  >
+                    <Award size={18} />
+                    <span>Подарить этот участок</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

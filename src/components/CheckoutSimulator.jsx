@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CreditCard, Shield, Download, Share2, ArrowLeft, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { Shield, Download, Share2, ArrowLeft, RefreshCw, MailOpen, Lock } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 const CheckoutSimulator = ({ orderDetails, onBack, onPurchaseComplete }) => {
@@ -12,13 +12,14 @@ const CheckoutSimulator = ({ orderDetails, onBack, onPurchaseComplete }) => {
   const [paymentState, setPaymentState] = useState('form'); // 'form', 'loading', 'success'
   const [loadingStep, setLoadingStep] = useState(0);
   const [generatedRegId, setGeneratedRegId] = useState('');
+  const [envelopeOpen, setEnvelopeOpen] = useState(false);
 
   const loadingSteps = [
-    'Инициализация безопасного шлюза SpacePay...',
-    'Проверка свободных координат в реестре...',
-    'Перевод средств в звездные кредиты...',
-    'Печать цифровой голограммы реестра...',
-    'Генерация уникального сертификата...'
+    'Подключение к защищенному шлюзу...',
+    'Резервирование координат в звездной базе...',
+    'Проведение транзакции...',
+    'Наложение цифровой гербовой печати...',
+    'Свидетельство успешно сгенерировано.'
   ];
 
   const handleCardNumberChange = (e) => {
@@ -35,22 +36,16 @@ const CheckoutSimulator = ({ orderDetails, onBack, onPurchaseComplete }) => {
     setExpiry(value.substring(0, 5));
   };
 
-  const handleCvcChange = (e) => {
-    const value = e.target.value.replace(/\D/g, '');
-    setCvc(value.substring(0, 3));
-  };
-
   const startPayment = (e) => {
     e.preventDefault();
     if (!email.trim() || !cardNumber || !cardHolder || !expiry || !cvc) {
-      alert('Пожалуйста, заполните все поля формы!');
+      alert('Пожалуйста, заполните все поля!');
       return;
     }
 
     setPaymentState('loading');
     setLoadingStep(0);
 
-    // Simulate stepping through loading tasks
     const interval = setInterval(() => {
       setLoadingStep((prev) => {
         if (prev < loadingSteps.length - 1) {
@@ -61,7 +56,7 @@ const CheckoutSimulator = ({ orderDetails, onBack, onPurchaseComplete }) => {
           return prev;
         }
       });
-    }, 1200);
+    }, 1100);
   };
 
   const completePayment = () => {
@@ -69,15 +64,14 @@ const CheckoutSimulator = ({ orderDetails, onBack, onPurchaseComplete }) => {
     setGeneratedRegId(regId);
     setPaymentState('success');
 
-    // Trigger cool space-themed confetti explosion!
+    // Trigger soft, gold/silver stardust confetti
     confetti({
-      particleCount: 150,
-      spread: 80,
-      origin: { y: 0.6 },
-      colors: ['#00F0FF', '#FF007A', '#FFB800', '#ffffff', '#8B5CF6'],
+      particleCount: 80,
+      spread: 60,
+      origin: { y: 0.65 },
+      colors: ['#d4af37', '#f9f6ee', '#ffffff', '#e5c060'],
     });
 
-    // Call state updater in parent App
     onPurchaseComplete({
       ...orderDetails,
       email: email,
@@ -93,183 +87,207 @@ const CheckoutSimulator = ({ orderDetails, onBack, onPurchaseComplete }) => {
 
   const copyShareLink = () => {
     navigator.clipboard.writeText(getShareLink());
-    alert('Ссылка скопирована в буфер обмена! Отправьте её получателю подарка.');
+    alert('Ссылка скопирована! Отправьте её получателю подарка.');
   };
 
   return (
-    <div className="checkout-container animate-fade-in">
+    <div className="checkout-container-lux animate-fade-in">
       {paymentState === 'form' && (
-        <div className="checkout-split">
+        <div className="checkout-split-lux">
+          
           {/* Form Side */}
-          <div className="checkout-form-panel glass-card">
-            <button className="btn-back-text" onClick={onBack}>
-              <ArrowLeft size={16} /> Назад к редактированию
+          <div className="checkout-form-panel-lux glass-card">
+            <button className="btn-back-lux" onClick={onBack}>
+              <ArrowLeft size={14} /> Назад к оформлению
             </button>
-            <h2 className="section-title text-neon-cyan">Оплата подарка</h2>
-            <p className="section-sub">Заполните платежные данные для завершения регистрации.</p>
+            <h2 className="text-gold-gradient text-2xl font-bold">Оплата заказа</h2>
+            <p className="section-sub">Защищенное оформление сувенирного права собственности.</p>
 
-            <form onSubmit={startPayment} className="form-wrapper">
-              <div className="form-group">
-                <label className="info-label">Ваш E-mail (для отправки чека и PDF):</label>
+            <form onSubmit={startPayment} className="form-wrapper-lux">
+              <div className="form-group-lux">
+                <label className="info-label-lux">ВАШ E-MAIL (ДЛЯ ПОЛУЧЕНИЯ СВИДЕТЕЛЬСТВА):</label>
                 <input
                   type="email"
                   placeholder="name@domain.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="custom-input"
+                  className="lux-input"
                   required
                 />
               </div>
 
-              {/* Cosmic Card Fields */}
-              <div className="form-group">
-                <label className="info-label">Номер карты:</label>
+              <div className="form-group-lux">
+                <label className="info-label-lux">НОМЕР БАНКОВСКОЙ КАРТЫ:</label>
                 <input
                   type="text"
                   placeholder="0000 0000 0000 0000"
                   value={cardNumber}
                   onChange={handleCardNumberChange}
-                  className="custom-input font-mono"
+                  className="lux-input font-mono"
                   required
                 />
               </div>
 
-              <div className="form-group">
-                <label className="info-label">Имя владельца карты (латиницей):</label>
+              <div className="form-group-lux">
+                <label className="info-label-lux">ИМЯ НА КАРТЕ (ЛАТИНИЦЕЙ):</label>
                 <input
                   type="text"
                   placeholder="IVAN IVANOV"
                   value={cardHolder}
                   onChange={(e) => setCardHolder(e.target.value.toUpperCase())}
-                  className="custom-input"
+                  className="lux-input"
                   required
                 />
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="info-label">Срок действия:</label>
+              <div className="form-row-lux">
+                <div className="form-group-lux">
+                  <label className="info-label-lux">СРОК ДЕЙСТВИЯ:</label>
                   <input
                     type="text"
                     placeholder="ММ/ГГ"
                     value={expiry}
                     onChange={handleExpiryChange}
-                    className="custom-input text-center font-mono"
+                    className="lux-input text-center font-mono"
                     required
                   />
                 </div>
-                <div className="form-group">
-                  <label className="info-label">CVC/CVV:</label>
+                <div className="form-group-lux">
+                  <label className="info-label-lux">CVC/CVV КОД:</label>
                   <input
                     type="password"
                     placeholder="•••"
                     value={cvc}
-                    onChange={handleCvcChange}
-                    className="custom-input text-center font-mono"
+                    onChange={(e) => setCvc(e.target.value.replace(/\D/g, '').substring(0, 3))}
+                    className="lux-input text-center font-mono"
                     required
                   />
                 </div>
               </div>
 
-              <button type="submit" className="btn btn-primary btn-full btn-glow btn-checkout">
-                <CreditCard size={18} />
+              <button type="submit" className="btn-lux btn-lux-primary btn-full btn-glow mt-4">
+                <Lock size={16} />
                 <span>Оплатить {orderDetails.price.toLocaleString()} ₽</span>
               </button>
             </form>
           </div>
 
-          {/* Interactive Card Visualizer */}
-          <div className="checkout-visual-panel">
-            <div className="space-card-wrapper">
-              <div className="space-card glass-card">
-                <div className="card-stars-overlay" />
-                <div className="card-top-row">
-                  <div className="card-chip" />
-                  <span className="card-brand text-neon-cyan">SpacePay</span>
-                </div>
-                <div className="card-number font-mono">
-                  {cardNumber || '•••• •••• •••• ••••'}
-                </div>
-                <div className="card-bottom-row">
-                  <div className="card-holder-info">
-                    <span className="card-lbl">ВЛАДЕЛЕЦ</span>
-                    <span className="card-val">{cardHolder || 'IVAN IVANOV'}</span>
-                  </div>
-                  <div className="card-expiry-info">
-                    <span className="card-lbl">СРОК</span>
-                    <span className="card-val">{expiry || 'MM/YY'}</span>
-                  </div>
-                </div>
+          {/* Secure Details Side */}
+          <div className="checkout-info-panel-lux glass-card">
+            <h3>Детали покупки</h3>
+            <div className="checkout-summary-box">
+              <div className="summary-row-lux">
+                <span>Космический объект:</span>
+                <span>{orderDetails.bodyName}</span>
+              </div>
+              <div className="summary-row-lux">
+                <span>Координаты участка:</span>
+                <span className="font-mono text-gold">{orderDetails.coordinate}</span>
+              </div>
+              <div className="summary-row-lux">
+                <span>Площадь:</span>
+                <span>{orderDetails.packageName}</span>
+              </div>
+              <div className="summary-row-lux">
+                <span>Владелец:</span>
+                <span className="text-white">{orderDetails.owner}</span>
               </div>
             </div>
 
-            <div className="security-badges text-center">
-              <Shield className="text-neon-cyan inline-block mr-2" size={16} />
-              <span className="text-sm text-slate-400">Шифрование данных 256-бит SHA-Galaxy</span>
+            <div className="checkout-protection-badge">
+              <Shield className="text-gold" size={24} />
+              <div>
+                <h4>Безопасность платежей</h4>
+                <p>Все транзакции шифруются и проводятся по международному стандарту безопасности PCI DSS.</p>
+              </div>
             </div>
           </div>
         </div>
       )}
 
       {paymentState === 'loading' && (
-        <div className="checkout-loading-screen glass-card text-center animate-fade-in">
-          <div className="loader-spinner-wrapper">
-            <RefreshCw size={48} className="spinner text-neon-cyan" />
-          </div>
-          <h3 className="loading-headline">Регистрация в Галактическом Реестре</h3>
-          <p className="loading-step-text text-neon-pink">
-            {loadingSteps[loadingStep]}
-          </p>
-          <div className="progress-bar-container">
-            <div 
-              className="progress-bar-fill" 
-              style={{ width: `${((loadingStep + 1) / loadingSteps.length) * 100}%` }}
-            />
-          </div>
+        <div className="checkout-loading-lux glass-card text-center animate-fade-in">
+          <RefreshCw size={40} className="spinner text-gold mb-4" />
+          <h3>Внесение в Галактический Реестр</h3>
+          <p className="text-gold mt-2 font-mono text-sm">{loadingSteps[loadingStep]}</p>
         </div>
       )}
 
       {paymentState === 'success' && (
-        <div className="checkout-success-screen glass-card text-center animate-scale-up">
-          <div className="success-icon-wrapper">
-            <CheckCircle2 size={64} className="text-neon-cyan animate-pulse" />
-          </div>
+        <div className="checkout-success-lux text-center animate-scale-up">
           
-          <h2 className="success-headline text-neon-cyan">Поздравляем с Покупкой!</h2>
-          <p className="success-sub">
-            Участок <strong>{orderDetails.coordinate}</strong> на теле <strong>{orderDetails.bodyName}</strong> успешно зарегистрирован на имя <strong>{orderDetails.owner}</strong>.
-          </p>
-
-          <hr className="divider my-6" />
-
-          {/* Share options */}
-          <div className="success-actions-box">
-            <h3>Подарите интерактивную ссылку с анимацией приближения:</h3>
-            <p className="share-desc">Получатель откроет ссылку и увидит трехмерный полет сквозь звезды прямо к своему новому участку!</p>
-            
-            <div className="share-link-input-group">
-              <input 
-                type="text" 
-                readOnly 
-                value={getShareLink()} 
-                className="custom-input share-url-field"
-              />
-              <button className="btn btn-secondary btn-copy" onClick={copyShareLink}>
-                <Share2 size={16} />
-                <span>Копировать</span>
+          {/* Interactive 3D Envelope Opening Animation */}
+          {!envelopeOpen ? (
+            <div className="envelope-animation-container glass-card">
+              <div className="envelope-seal-wrapper icon-pulse">
+                <MailOpen size={48} className="text-gold" />
+              </div>
+              <h2 className="text-gold-gradient text-2xl font-bold mt-4">Подарок успешно создан!</h2>
+              <p className="text-slate-400 mt-1 mb-6">Мы запечатали свидетельство в виртуальный золотой конверт.</p>
+              
+              <button 
+                className="btn-lux btn-lux-primary btn-glow"
+                onClick={() => setEnvelopeOpen(true)}
+              >
+                <span>Открыть конверт</span>
               </button>
             </div>
-          </div>
+          ) : (
+            // Opened Letter
+            <div className="opened-gift-letter-container glass-card animate-slide-up">
+              <div className="gold-letter-header">
+                <span className="letter-registry">COSMOS REGISTRY</span>
+                <h2>Поздравляем с приобретением!</h2>
+              </div>
+              
+              <p className="letter-text">
+                Участок <strong>{orderDetails.coordinate}</strong> на теле <strong>{orderDetails.bodyName}</strong> официально зарегистрирован на имя <strong>{orderDetails.owner}</strong>.
+              </p>
 
-          <div className="success-button-row">
-            <button className="btn btn-secondary" onClick={() => window.print()}>
-              <Download size={16} />
-              <span>Распечатать PDF</span>
-            </button>
-            <button className="btn btn-primary btn-glow" onClick={() => onPurchaseComplete(null, true)}>
-              Вернуться на Главную
-            </button>
-          </div>
+              <div className="gift-letter-details">
+                <div className="letter-row">
+                  <span>Объект:</span>
+                  <span>{orderDetails.bodyName}</span>
+                </div>
+                <div className="letter-row">
+                  <span>Координаты:</span>
+                  <span className="font-mono text-gold">{orderDetails.coordinate}</span>
+                </div>
+                <div className="letter-row">
+                  <span>Идентификатор Реестра:</span>
+                  <span className="font-mono text-xs">{generatedRegId}</span>
+                </div>
+              </div>
+
+              <hr className="divider-lux" />
+
+              <div className="letter-sharing-box">
+                <h4>Подарите ссылку с 3D-полетом к планете:</h4>
+                <p className="share-desc">Получатель откроет её и увидит эффектное приближение к своему участку.</p>
+                <div className="share-link-row-lux">
+                  <input 
+                    type="text" 
+                    readOnly 
+                    value={getShareLink()} 
+                    className="lux-input share-input-lux"
+                  />
+                  <button className="btn-lux btn-lux-secondary" onClick={copyShareLink}>
+                    <Share2 size={16} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="letter-actions-lux mt-6">
+                <button className="btn-lux btn-lux-secondary" onClick={() => window.print()}>
+                  <Download size={14} />
+                  <span>Печать PDF</span>
+                </button>
+                <button className="btn-lux btn-lux-primary btn-glow" onClick={() => onPurchaseComplete(null, true)}>
+                  Вернуться на главную
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Edit3, CheckCircle, ChevronRight, Award } from 'lucide-react';
+import { ChevronRight, Award } from 'lucide-react';
 
 const CertificateCustomizer = ({ plotInfo, onBack, onProceed }) => {
   const [ownerName, setOwnerName] = useState('');
   const [dedication, setDedication] = useState('');
-  const [theme, setTheme] = useState('cyber'); // 'cyber', 'gold', 'stellar'
+  const [theme, setTheme] = useState('classic-gold'); // 'classic-gold', 'minimal-onyx'
 
   const handleProceed = (e) => {
     e.preventDefault();
@@ -22,94 +22,84 @@ const CertificateCustomizer = ({ plotInfo, onBack, onProceed }) => {
   };
 
   const getThemeClass = () => {
-    switch (theme) {
-      case 'gold': return 'cert-theme-gold';
-      case 'stellar': return 'cert-theme-stellar';
-      default: return 'cert-theme-cyber';
-    }
+    return theme === 'minimal-onyx' ? 'cert-lux-onyx' : 'cert-lux-gold';
   };
 
   return (
-    <div className="customizer-container animate-fade-in">
-      {/* Configuration Form */}
-      <div className="customizer-form glass-card">
-        <h2 className="section-title text-neon-cyan">Оформление Сертификата</h2>
-        <p className="section-sub">Заполните данные для создания именного сувенирного свидетельства о владении.</p>
+    <div className="customizer-container-lux animate-fade-in">
+      
+      {/* Input controls form */}
+      <div className="customizer-form-lux glass-card">
+        <h2 className="text-gold-gradient text-2xl font-bold">Оформление подарка</h2>
+        <p className="section-sub">Заполните детали, которые будут напечатаны на именном свидетельстве.</p>
 
-        <form onSubmit={handleProceed} className="form-wrapper">
-          <div className="form-group">
-            <label className="info-label">Имя владельца (на кого оформить):</label>
+        <form onSubmit={handleProceed} className="form-wrapper-lux">
+          <div className="form-group-lux">
+            <label className="info-label-lux">КОМУ ПОДАРИТЬ (ИМЯ НА СЕРТИФИКАТЕ):</label>
             <input
               type="text"
               placeholder="Например: Александра Смирнова"
               value={ownerName}
               onChange={(e) => setOwnerName(e.target.value)}
-              className="custom-input"
-              maxLength={40}
+              className="lux-input"
+              maxLength={36}
               required
             />
           </div>
 
-          <div className="form-group">
-            <label className="info-label">Поздравление / Открытка (по желанию):</label>
+          <div className="form-group-lux">
+            <label className="info-label-lux">ЛИЧНОЕ ПОЗДРАВЛЕНИЕ / ОТКРЫТКА:</label>
             <textarea
-              placeholder="Напишите теплые слова... (например: 'Моей любимой звездочке! Пусть этот кусочек Луны напоминает тебе о моей бесконечной любви.')"
+              placeholder="Напишите теплые пожелания... (например: 'Пусть эта звезда напоминает тебе о наших самых ярких моментах. Люблю тебя.')"
               value={dedication}
               onChange={(e) => setDedication(e.target.value)}
-              className="custom-textarea"
+              className="lux-textarea"
               maxLength={150}
               rows={4}
             />
-            <span className="char-counter">{dedication.length}/150 символов</span>
+            <span className="char-counter-lux">{dedication.length}/150 символов</span>
           </div>
 
-          <div className="form-group">
-            <label className="info-label">Стиль бланка сертификата:</label>
-            <div className="theme-selector-grid">
+          <div className="form-group-lux">
+            <label className="info-label-lux">СТИЛЬ ОФОРМЛЕНИЯ:</label>
+            <div className="theme-selector-lux">
               <button
                 type="button"
-                className={`theme-opt cyber-opt ${theme === 'cyber' ? 'selected-theme' : ''}`}
-                onClick={() => setTheme('cyber')}
+                className={`theme-btn-lux ${theme === 'classic-gold' ? 'active' : ''}`}
+                onClick={() => setTheme('classic-gold')}
               >
-                <span>Кибер-Неон</span>
+                Классическое Золото (Кремовый)
               </button>
               <button
                 type="button"
-                className={`theme-opt gold-opt ${theme === 'gold' ? 'selected-theme' : ''}`}
-                onClick={() => setTheme('gold')}
+                className={`theme-btn-lux ${theme === 'minimal-onyx' ? 'active' : ''}`}
+                onClick={() => setTheme('minimal-onyx')}
               >
-                <span>Имперское Золото</span>
-              </button>
-              <button
-                type="button"
-                className={`theme-opt stellar-opt ${theme === 'stellar' ? 'selected-theme' : ''}`}
-                onClick={() => setTheme('stellar')}
-              >
-                <span>Звездная Пыль</span>
+                Космический Оникс (Черный)
               </button>
             </div>
           </div>
 
-          <div className="form-summary glass-card">
-            <div className="summary-row">
-              <span>Сектор:</span>
-              <span className="text-neon-cyan">{plotInfo.coordinate} ({plotInfo.bodyName})</span>
+          <div className="order-summary-lux">
+            <div className="summary-row-lux">
+              <span>Сектор регистрации:</span>
+              <span className="text-gold font-mono">{plotInfo.coordinate} ({plotInfo.bodyName})</span>
             </div>
-            <div className="summary-row">
-              <span>Площадь:</span>
+            <div className="summary-row-lux">
+              <span>Размер участка:</span>
               <span>{plotInfo.packageName}</span>
             </div>
-            <div className="summary-row font-bold">
-              <span>Итого к оплате:</span>
-              <span className="text-neon-pink">{plotInfo.price.toLocaleString()} ₽</span>
+            <div className="summary-row-lux font-bold-lux">
+              <span>Итого:</span>
+              <span className="text-gold">{plotInfo.price.toLocaleString()} ₽</span>
             </div>
           </div>
 
-          <div className="form-actions-row">
-            <button type="button" className="btn btn-secondary" onClick={onBack}>
-              Назад к карте
+          <div className="form-actions-lux">
+            <button type="button" className="btn-lux btn-lux-secondary" onClick={onBack}>
+              Назад
             </button>
-            <button type="submit" className="btn btn-primary btn-glow">
+            <button type="submit" className="btn-lux btn-lux-primary btn-glow">
               <span>К оплате</span>
               <ChevronRight size={16} />
             </button>
@@ -117,75 +107,72 @@ const CertificateCustomizer = ({ plotInfo, onBack, onProceed }) => {
         </form>
       </div>
 
-      {/* Live Preview Certificate */}
-      <div className="customizer-preview">
-        <h3 className="preview-label">
-          <Edit3 size={14} /> Предпросмотр в реальном времени
-        </h3>
+      {/* Live Preview Certificate Display */}
+      <div className="customizer-preview-lux">
+        <span className="preview-label-lux">ВИЗУАЛЬНЫЙ ПРЕДПРОСМОТР СЕРТИФИКАТА</span>
         
-        <div className={`certificate-card ${getThemeClass()} shadow-2xl`}>
-          {/* Certificate Borders & Background Glows */}
-          <div className="cert-border-outer" />
-          <div className="cert-border-inner" />
+        <div className={`certificate-card-lux ${getThemeClass()} shadow-2xl`}>
+          <div className="cert-lux-border-outer" />
+          <div className="cert-lux-border-inner" />
           
-          <div className="cert-content">
-            <div className="cert-header">
-              <span className="cert-registry-title">GALACTIC LAND REGISTRY</span>
-              <span className="cert-doc-type">СЕРТИФИКАТ НА ВЛАДЕНИЕ</span>
+          <div className="cert-lux-content">
+            <div className="cert-lux-header">
+              <span className="cert-lux-registry">GALACTIC LAND REGISTRY</span>
+              <span className="cert-lux-title">СВИДЕТЕЛЬСТВО О СОБСТВЕННОСТИ</span>
             </div>
 
-            <div className="cert-body">
-              <p className="cert-intro">Настоящим подтверждается, что запись внесена в Галактический Реестр</p>
+            <div className="cert-lux-body">
+              <p className="cert-lux-intro">Настоящим подтверждается внесение записи в международный реестр:</p>
               
-              <h2 className="cert-owner-name">
-                {ownerName.trim() ? ownerName : 'Имя Получателя'}
+              <h2 className="cert-lux-owner">
+                {ownerName.trim() ? ownerName : 'Александра Смирнова'}
               </h2>
 
-              <p className="cert-statement">
+              <p className="cert-lux-statement">
                 является законным владельцем сувенирного участка на небесном теле
               </p>
 
-              <h3 className="cert-body-name">
+              <h3 className="cert-lux-body-name">
                 {plotInfo.bodyName}
               </h3>
 
-              <div className="cert-specs-grid">
-                <div className="cert-spec-item">
-                  <span className="spec-lbl">КООРДИНАТЫ</span>
-                  <span className="spec-val text-glow">{plotInfo.coordinate}</span>
+              <div className="cert-lux-specs">
+                <div className="spec-item-lux">
+                  <span className="spec-lbl-lux">КООРДИНАТЫ</span>
+                  <span className="spec-val-lux">{plotInfo.coordinate}</span>
                 </div>
-                <div className="cert-spec-item">
-                  <span className="spec-lbl">ПЛОЩАДЬ</span>
-                  <span className="spec-val">{plotInfo.packageName.split(' ')[0]} Акр(ов)</span>
+                <div className="spec-item-lux">
+                  <span className="spec-lbl-lux">ПЛОЩАДЬ</span>
+                  <span className="spec-val-lux">{plotInfo.packageName.split(' ')[0]} Акр(ов)</span>
                 </div>
-                <div className="cert-spec-item">
-                  <span className="spec-lbl">РЕГИСТРАЦИОННЫЙ №</span>
-                  <span className="spec-val">CR-{plotInfo.coordinate}-{Math.floor(Math.random() * 90000 + 10000)}</span>
+                <div className="spec-item-lux">
+                  <span className="spec-lbl-lux">РЕЕСТР №</span>
+                  <span className="spec-val-lux">CR-{plotInfo.coordinate}-9401</span>
                 </div>
               </div>
 
               {dedication.trim() && (
-                <div className="cert-dedication-box">
-                  <p className="cert-dedication-text">« {dedication} »</p>
+                <div className="cert-lux-dedication">
+                  <p>« {dedication} »</p>
                 </div>
               )}
             </div>
 
-            <div className="cert-footer">
-              <div className="cert-signature">
-                <div className="sig-line" />
-                <span>Генеральный Секретарь реестра</span>
+            <div className="cert-lux-footer">
+              <div className="cert-lux-date">
+                <span>ДАТА РЕГИСТРАЦИИ</span>
+                <span className="date-val-lux">{new Date().toLocaleDateString('ru-RU')}</span>
               </div>
               
-              {/* Holographic Seal */}
-              <div className="cert-hologram">
-                <Award size={32} className="holo-icon" />
-                <span className="holo-text">OFFICIAL SEAL</span>
+              {/* Gold Hologram Seal */}
+              <div className="cert-lux-seal">
+                <Award size={26} />
+                <span>REGISTRY SEAL</span>
               </div>
 
-              <div className="cert-date">
-                <span>ДАТА РЕГИСТРАЦИИ</span>
-                <span className="date-val">{new Date().toLocaleDateString('ru-RU')}</span>
+              <div className="cert-lux-signature">
+                <div className="sig-line-lux" />
+                <span>Secretary General of Registry</span>
               </div>
             </div>
           </div>
