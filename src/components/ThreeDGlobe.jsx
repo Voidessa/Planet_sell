@@ -11,12 +11,11 @@ const ThreeDGlobe = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate 
   const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K'];
   const cols = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-  // Map grid coordinate (e.g. A-3) to lat/lon degrees
+  // Map grid coordinate to lat/lon bounds
   const getCellBounds = (row, col) => {
     const rowIdx = rows.indexOf(row);
     const colIdx = col - 1;
     
-    // Grid maps between -60 to 60 Lat, and -180 to 180 Lon
     const latMin = -60 + rowIdx * 12;
     const latMax = latMin + 12;
     
@@ -30,36 +29,40 @@ const ThreeDGlobe = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate 
     return registry.find(item => item.bodyId === bodyId && item.coordinate === coord);
   };
 
-  // Luxury Oklch colors and details
+  // Luxury bright gradients so planets look beautiful and glowing, not pitch black
   const getBodyTheme = () => {
     switch (bodyId) {
       case 'mars':
         return {
-          glowColor: 'rgba(239, 68, 68, 0.35)',
-          gridColor: 'rgba(255, 255, 255, 0.12)',
-          gradient: ['#1e0505', '#4c0505', '#991b1b', '#ef4444'], // Deep rust to bright red
-          halo: 'oklch(62% 0.22 25)'
+          glowColor: 'rgba(239, 68, 68, 0.45)',
+          gridColor: 'rgba(255, 255, 255, 0.28)',
+          // Bright glowing red-orange Mars gradient
+          gradient: ['#3f0712', '#9f1239', '#ef4444', '#fecaca'], 
+          halo: 'oklch(65% 0.24 25)'
         };
       case 'venus':
         return {
-          glowColor: 'rgba(245, 158, 11, 0.35)',
-          gridColor: 'rgba(255, 255, 255, 0.12)',
-          gradient: ['#1c0c02', '#451a03', '#9a3412', '#ea580c'], // Amber and gold volcanic shades
-          halo: 'oklch(70% 0.18 50)'
+          glowColor: 'rgba(245, 158, 11, 0.45)',
+          gridColor: 'rgba(255, 255, 255, 0.28)',
+          // Luminous golden Venus gradient
+          gradient: ['#451a03', '#9a3412', '#f59e0b', '#fef08a'], 
+          halo: 'oklch(75% 0.2 55)'
         };
       case 'stars':
         return {
-          glowColor: 'rgba(139, 92, 246, 0.35)',
-          gridColor: 'rgba(255, 255, 255, 0.16)',
-          gradient: ['#0f052d', '#1e0a45', '#3b0764', '#6b21a8'], // Deep indigo space void
-          halo: 'oklch(60% 0.28 300)'
+          glowColor: 'rgba(139, 92, 246, 0.45)',
+          gridColor: 'rgba(255, 255, 255, 0.32)',
+          // Vibrant deep space purple gradient
+          gradient: ['#1e1b4b', '#4c1d95', '#8b5cf6', '#ddd6fe'], 
+          halo: 'oklch(62% 0.28 290)'
         };
       default: // moon
         return {
-          glowColor: 'rgba(255, 255, 255, 0.22)',
-          gridColor: 'rgba(255, 255, 255, 0.14)',
-          gradient: ['#090d16', '#1e293b', '#334155', '#cbd5e1'], // Rich slates and bright lunar silver
-          halo: 'oklch(80% 0.02 200)'
+          glowColor: 'rgba(255, 255, 255, 0.3)',
+          gridColor: 'rgba(255, 255, 255, 0.35)',
+          // High-luminance silver Moon gradient
+          gradient: ['#0f172a', '#334155', '#94a3b8', '#ffffff'], 
+          halo: 'oklch(85% 0.01 200)'
         };
     }
   };
@@ -87,7 +90,6 @@ const ThreeDGlobe = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate 
     };
     window.addEventListener('resize', handleResize);
 
-    // 3D Math projections
     const project = (lat, lon) => {
       const radLat = (lat * Math.PI) / 180;
       const radLon = (lon * Math.PI) / 180;
@@ -96,13 +98,11 @@ const ThreeDGlobe = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate 
       let y = radius * Math.sin(radLat);
       let z = radius * Math.cos(radLat) * Math.cos(radLon);
 
-      // Pitch (X-rotation)
       const cosPitch = Math.cos(rotation.current.pitch);
       const sinPitch = Math.sin(rotation.current.pitch);
       let y1 = y * cosPitch - z * sinPitch;
       let z1 = y * sinPitch + z * cosPitch;
 
-      // Yaw (Y-rotation)
       const cosYaw = Math.cos(rotation.current.yaw);
       const sinYaw = Math.sin(rotation.current.yaw);
       let x2 = x * cosYaw + z1 * sinYaw;
@@ -118,7 +118,6 @@ const ThreeDGlobe = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate 
       };
     };
 
-    // Draw a coordinate sector mapped in 3D
     const drawCell = (row, col, fillStyle, strokeStyle, strokeWidth = 1) => {
       const { latMin, latMax, lonMin, lonMax } = getCellBounds(row, col);
 
@@ -127,7 +126,6 @@ const ThreeDGlobe = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate 
       const p3 = project(latMax, lonMax);
       const p4 = project(latMax, lonMin);
 
-      // Hide if on back side
       const avgZ = (p1.z + p2.z + p3.z + p4.z) / 4;
       if (avgZ <= 2) return;
 
@@ -153,16 +151,15 @@ const ThreeDGlobe = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate 
       const base = project(lat, lon);
       if (base.z <= 0) return;
 
-      const beaconHeight = 60;
+      const beaconHeight = 65;
       const top = {
         x: base.x + base.normalX * beaconHeight,
         y: base.y - base.normalY * beaconHeight
       };
 
-      // Golden vertical beacon ray
       const beamGrad = ctx.createLinearGradient(base.x, base.y, top.x, top.y);
       beamGrad.addColorStop(0, '#d4af37');
-      beamGrad.addColorStop(0.3, 'rgba(212, 175, 55, 0.4)');
+      beamGrad.addColorStop(0.3, 'rgba(212, 175, 55, 0.5)');
       beamGrad.addColorStop(1, 'rgba(212, 175, 55, 0)');
       
       ctx.beginPath();
@@ -172,7 +169,6 @@ const ThreeDGlobe = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate 
       ctx.lineTo(top.x, top.y);
       ctx.stroke();
 
-      // Pulsing gold beacon base
       const pulse = (Date.now() / 12) % 20;
       ctx.beginPath();
       ctx.arc(base.x, base.y, pulse, 0, Math.PI * 2);
@@ -180,16 +176,14 @@ const ThreeDGlobe = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate 
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      // Top flare spark
       ctx.beginPath();
       ctx.arc(top.x, top.y, 5, 0, Math.PI * 2);
       ctx.fillStyle = '#ffffff';
       ctx.shadowColor = '#d4af37';
       ctx.shadowBlur = 20;
       ctx.fill();
-      ctx.shadowBlur = 0; // Reset canvas shadows
+      ctx.shadowBlur = 0;
 
-      // Coordinates Floating Card
       ctx.fillStyle = 'rgba(3, 2, 10, 0.9)';
       ctx.strokeStyle = '#d4af37';
       ctx.lineWidth = 1;
@@ -217,27 +211,27 @@ const ThreeDGlobe = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate 
       const theme = getBodyTheme();
 
       // 1. Planetary corona glow
-      const corona = ctx.createRadialGradient(cx, cy, radius * 0.95, cx, cy, radius * 1.2);
+      const corona = ctx.createRadialGradient(cx, cy, radius * 0.95, cx, cy, radius * 1.25);
       corona.addColorStop(0, theme.glowColor);
-      corona.addColorStop(0.5, 'rgba(212, 175, 55, 0.03)');
+      corona.addColorStop(0.5, 'rgba(255, 255, 255, 0.05)');
       corona.addColorStop(1, 'rgba(3, 2, 10, 0)');
       ctx.fillStyle = corona;
       ctx.beginPath();
-      ctx.arc(cx, cy, radius * 1.2, 0, Math.PI * 2);
+      ctx.arc(cx, cy, radius * 1.25, 0, Math.PI * 2);
       ctx.fill();
 
-      // 2. Base Sphere render with deep gradients
+      // 2. Base Sphere render with bright gradients
       const baseGrad = ctx.createRadialGradient(
         cx - radius * 0.3,
         cy - radius * 0.3,
-        radius * 0.1,
+        radius * 0.15,
         cx,
         cy,
         radius
       );
       baseGrad.addColorStop(0, theme.gradient[3]);
       baseGrad.addColorStop(0.3, theme.gradient[2]);
-      baseGrad.addColorStop(0.7, theme.gradient[1]);
+      baseGrad.addColorStop(0.75, theme.gradient[1]);
       baseGrad.addColorStop(1, theme.gradient[0]);
       
       ctx.beginPath();
@@ -245,7 +239,7 @@ const ThreeDGlobe = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate 
       ctx.fillStyle = baseGrad;
       ctx.fill();
 
-      // 3. Grid coordinates system (All boundaries drawn clearly as requested!)
+      // 3. Grid coordinates system (All boundaries drawn with higher visibility)
       rows.forEach(row => {
         cols.forEach(col => {
           const coord = `${row}-${col}`;
@@ -253,37 +247,34 @@ const ThreeDGlobe = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate 
           const isHovered = hoveredCell === coord;
           const soldRecord = getCellOwner(coord);
 
-          let fill = 'rgba(255, 255, 255, 0.01)';
-          let stroke = theme.gridColor;
-          let lineWidth = 0.55;
+          let fill = 'rgba(255, 255, 255, 0.02)';
+          let stroke = theme.gridColor; // High visibility grid outline
+          let lineWidth = 0.8;
 
           if (soldRecord) {
             // Pre-owned sectors: Rose-violet translucent gradient
-            fill = 'rgba(139, 92, 246, 0.28)';
-            stroke = 'rgba(139, 92, 246, 0.7)'; // Highly visible border
-            lineWidth = 1.3;
+            fill = 'rgba(139, 92, 246, 0.35)';
+            stroke = 'rgba(139, 92, 246, 0.9)'; // High contrast pre-owned line
+            lineWidth = 1.5;
           }
 
           if (isHovered) {
-            // Hovered sectors: Glowing white border
-            fill = 'rgba(255, 255, 255, 0.08)';
-            stroke = 'rgba(255, 255, 255, 0.7)';
-            lineWidth = 1.6;
+            fill = 'rgba(255, 255, 255, 0.15)';
+            stroke = '#ffffff';
+            lineWidth = 2.0;
           }
 
           if (isSelected) {
-            // Selected sector: Gold border
-            fill = 'rgba(212, 175, 55, 0.32)';
+            fill = 'rgba(212, 175, 55, 0.4)';
             stroke = '#d4af37';
-            lineWidth = 2.5;
+            lineWidth = 3.0;
           }
 
-          // Draw the projected cell boundaries
           drawCell(row, col, fill, stroke, lineWidth);
         });
       });
 
-      // 4. Detailed craters (for Moon only, adds luxury realism)
+      // 4. Detailed craters (for Moon)
       if (bodyId === 'moon') {
         const craters = [
           { lat: 15, lon: -40, r: 18 },
@@ -297,9 +288,9 @@ const ThreeDGlobe = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate 
           if (pt.z > 5) {
             ctx.beginPath();
             ctx.arc(pt.x, pt.y, cr.r * (pt.z / radius), 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
             ctx.fill();
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.28)';
             ctx.stroke();
           }
         });
@@ -314,24 +305,24 @@ const ThreeDGlobe = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate 
         drawBeacon(centerLat, centerLon, selectedCoordinate);
       }
 
-      // 6. Deep spherical shadowing (Adds intense 3D realism to sphere edge)
+      // 6. Spherical shadow (adjusted to cover less area for a much brighter planet)
       const shadowGrad = ctx.createRadialGradient(
-        cx - radius * 0.3,
-        cy - radius * 0.3,
-        radius * 0.75,
+        cx - radius * 0.4,
+        cy - radius * 0.4,
+        radius * 0.85,
         cx,
         cy,
         radius
       );
       shadowGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-      shadowGrad.addColorStop(0.75, 'rgba(3, 2, 10, 0.55)');
-      shadowGrad.addColorStop(1, 'rgba(3, 2, 10, 0.98)');
+      shadowGrad.addColorStop(0.85, 'rgba(3, 2, 10, 0.28)'); // Lighter intermediate shadow
+      shadowGrad.addColorStop(1, 'rgba(3, 2, 10, 0.65)');  // Edge shadow only (not black hole)
       ctx.fillStyle = shadowGrad;
       ctx.beginPath();
       ctx.arc(cx, cy, radius, 0, Math.PI * 2);
       ctx.fill();
 
-      // Golden orbits outline
+      // Outer golden orbits outline
       ctx.strokeStyle = 'rgba(212, 175, 55, 0.08)';
       ctx.lineWidth = 1;
       ctx.beginPath();
@@ -349,7 +340,6 @@ const ThreeDGlobe = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate 
     };
   }, [bodyId, registry, selectedCoordinate, hoveredCell]);
 
-  // Translate screen coordinate to globe sector coords
   const getCellFromScreen = (clientX, clientY) => {
     const canvas = canvasRef.current;
     if (!canvas) return null;
@@ -368,7 +358,6 @@ const ThreeDGlobe = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate 
     const dy = clickY - cy;
     const dist = Math.sqrt(dx * dx + dy * dy);
     
-    // If outside the planet circle, return null
     if (dist > radius) return null;
 
     const x = dx;
@@ -423,7 +412,6 @@ const ThreeDGlobe = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate 
   };
 
   const handleMouseMove = (e) => {
-    // Coordinate Hover highlight tracking
     const matchedCell = getCellFromScreen(e.clientX, e.clientY);
     setHoveredCell(matchedCell);
 
