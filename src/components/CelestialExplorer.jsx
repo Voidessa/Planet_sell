@@ -5,19 +5,22 @@ import { Compass, Award, ShieldAlert, Check } from 'lucide-react';
 const CelestialExplorer = ({ initialBodyId = 'moon', onSelectPlot, registry }) => {
   const [selectedBody, setSelectedBody] = useState(initialBodyId);
   const [selectedCoordinate, setSelectedCoordinate] = useState(null);
-  const [selectedPackage, setSelectedPackage] = useState('1'); // '1', '7', '50'
+  const [selectedPackage, setSelectedPackage] = useState('1'); // '1', '4', '7', '14', '21', '49'
 
   const bodyData = {
-    moon: { name: 'Луна', desc: 'Участки в районе Моря Спокойствия (Mare Tranquillitatis). Вид на Землю включен.', price: 1490 },
-    mars: { name: 'Марс', desc: 'Секторы в долинах Маринер или вблизи вулкана Олимп. Новый дом человечества.', price: 2190 },
-    venus: { name: 'Венера', desc: 'Участки на Земле Афродиты. Планета, названная в честь богини любви.', price: 1890 },
-    stars: { name: 'Именная Звезда', desc: 'Сертификация яркой звезды в созвездии Ориона с вашим именем.', price: 3490 },
+    moon: { name: 'Луна', desc: 'Участки в районе Моря Спокойствия (Mare Tranquillitatis). Вид на Землю включен.', price: 49 },
+    mars: { name: 'Марс', desc: 'Секторы в долинах Маринер или вблизи вулкана Олимп. Новый дом человечества.', price: 69 },
+    venus: { name: 'Венера', desc: 'Участки на Земле Афродиты. Планета, названная в честь богини любви.', price: 59 },
+    stars: { name: 'Именная Звезда', desc: 'Сертификация яркой звезды в созвездии Ориона с вашим именем.', price: 99 },
   };
 
   const packageOptions = {
     '1': { size: '1 Акр', mult: 1, label: 'Стандартный участок' },
-    '7': { size: '7 Акров', mult: 4.8, label: 'Королевское поместье (-30%)' },
-    '50': { size: '50 Акров', mult: 22.5, label: 'Собственное Государство (-55%)' },
+    '4': { size: '4 Акра', mult: 3.65, label: 'Семейное владение (-10%)' },
+    '7': { size: '7 Акров', mult: 6.1, label: 'Королевское поместье (-20%)' },
+    '14': { size: '14 Акров', mult: 11.2, label: 'Герцогство (-25%)' },
+    '21': { size: '21 Акр', mult: 16.3, label: 'Имперский сектор (-35%)' },
+    '49': { size: '49 Акров', mult: 34.5, label: 'Суверенная колония (-50%)' },
   };
 
   const getPrice = (body, pkg) => {
@@ -26,7 +29,6 @@ const CelestialExplorer = ({ initialBodyId = 'moon', onSelectPlot, registry }) =
     return Math.floor(base * mult);
   };
 
-  // Get status of selected coordinate
   const getCoordinateStatus = () => {
     if (!selectedCoordinate) return null;
     const match = registry.find(
@@ -36,7 +38,6 @@ const CelestialExplorer = ({ initialBodyId = 'moon', onSelectPlot, registry }) =
   };
 
   useEffect(() => {
-    // Auto-select a nice initial coordinate when body changes (e.g. C-5)
     setSelectedCoordinate('C-5');
   }, [selectedBody]);
 
@@ -59,8 +60,7 @@ const CelestialExplorer = ({ initialBodyId = 'moon', onSelectPlot, registry }) =
 
   return (
     <div className="explorer-container-lux animate-fade-in">
-      
-      {/* 1. Celestial Header Selector */}
+      {/* 1. Celestial Header tabs */}
       <div className="explorer-header-tabs glass-card">
         {Object.entries(bodyData).map(([id, data]) => (
           <button
@@ -73,14 +73,14 @@ const CelestialExplorer = ({ initialBodyId = 'moon', onSelectPlot, registry }) =
         ))}
       </div>
 
-      {/* 2. Main Split: 3D Globe + Clean Panel */}
+      {/* 2. Main split view */}
       <div className="explorer-content-split">
         
-        {/* Globe Side */}
+        {/* Globe interactive viewer */}
         <div className="explorer-globe-viewport glass-card">
           <div className="globe-overlay-hud">
             <span className="hud-lbl">3D МАКЕТ ОБЪЕКТА (ИНТЕРАКТИВНЫЙ)</span>
-            <span className="hud-sub">Зажмите и тяните для вращения • Кликните на сферу для выбора участка</span>
+            <span className="hud-sub">Вращайте глобус • Выберите координатную ячейку кликом</span>
           </div>
 
           <ThreeDGlobe
@@ -91,7 +91,7 @@ const CelestialExplorer = ({ initialBodyId = 'moon', onSelectPlot, registry }) =
           />
         </div>
 
-        {/* Panel Side */}
+        {/* Configurations column */}
         <div className="explorer-details-panel-lux glass-card">
           <div className="panel-body-info">
             <h2 className="text-gold-gradient text-2xl font-bold">{bodyData[selectedBody].name}</h2>
@@ -100,20 +100,19 @@ const CelestialExplorer = ({ initialBodyId = 'moon', onSelectPlot, registry }) =
 
           <hr className="divider-lux" />
 
-          {/* Coordinate Detail Block */}
           {selectedCoordinate && (
             <div className="coordinate-focus-box">
-              <span className="info-label">ВЫБРАННЫЙ СЕКТОР:</span>
-              <h3 className="coordinate-title-lux font-mono text-neon-gold">
-                COORD: {selectedCoordinate} ({selectedBody === 'stars' ? 'RA/DEC' : 'LAT/LON'})
+              <span className="info-label">ВЫБРАННЫЕ КООРДИНАТЫ:</span>
+              <h3 className="coordinate-title-lux font-mono text-gold">
+                SEC: {selectedCoordinate}
               </h3>
 
               {status && status.status === 'sold' ? (
-                // Sold Info
+                // Sold Block
                 <div className="status-box-sold animate-slide-up">
                   <div className="sold-warning-tag">
                     <ShieldAlert size={14} />
-                    <span>Участок Занят</span>
+                    <span>Сектор уже зарегистрирован</span>
                   </div>
                   <div className="sold-details">
                     <div className="sold-row">
@@ -124,17 +123,15 @@ const CelestialExplorer = ({ initialBodyId = 'moon', onSelectPlot, registry }) =
                       <p className="sold-dedication-quote">« {status.dedication} »</p>
                     )}
                   </div>
-                  <p className="note-text-lux mt-2">Координаты уже закреплены. Пожалуйста, поверните глобус и выберите другую точку.</p>
                 </div>
               ) : (
-                // Available Selection
+                // Available Block
                 <div className="status-box-available animate-slide-up">
                   <div className="available-success-tag">
                     <Check size={14} />
-                    <span>Доступен к регистрации</span>
+                    <span>Сектор свободен к оформлению</span>
                   </div>
 
-                  {/* Clean Package Picker */}
                   <div className="package-picker-lux">
                     <label className="info-label">ВЫБЕРИТЕ РАЗМЕР УЧАСТКА:</label>
                     <div className="package-options-column">
@@ -148,7 +145,7 @@ const CelestialExplorer = ({ initialBodyId = 'moon', onSelectPlot, registry }) =
                             <span className="pkg-size">{opt.size}</span>
                             <span className="pkg-lbl">{opt.label}</span>
                           </div>
-                          <span className="pkg-price">{getPrice(selectedBody, key).toLocaleString()} ₽</span>
+                          <span className="pkg-price">${getPrice(selectedBody, key).toLocaleString()}</span>
                         </button>
                       ))}
                     </div>

@@ -13,10 +13,11 @@ const StarryBackground = () => {
     let animationFrameId;
     let stars = [];
     let shootingStars = [];
+    let nebulaTime = 0;
+    
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
-    // Handle resize
     const handleResize = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
@@ -25,93 +26,97 @@ const StarryBackground = () => {
 
     window.addEventListener('resize', handleResize);
 
-    // Initialize stars
     const initStars = () => {
       stars = [];
-      const density = Math.floor((width * height) / 4000); // Responsive star count
+      const density = Math.floor((width * height) / 3000);
       for (let i = 0; i < density; i++) {
+        // Multi-colored stars: pure white, light gold, soft lavender
+        const starColorType = Math.random();
+        let color = 'rgba(255, 255, 255, ';
+        if (starColorType > 0.85) {
+          color = 'rgba(212, 175, 55, '; // Gold stars
+        } else if (starColorType > 0.7) {
+          color = 'rgba(196, 181, 253, '; // Lavender stars
+        }
+
         stars.push({
           x: Math.random() * width,
           y: Math.random() * height,
-          size: Math.random() * 1.5 + 0.2,
+          size: Math.random() * 1.6 + 0.3,
           opacity: Math.random(),
-          speed: Math.random() * 0.02 + 0.005,
-          twinkleSpeed: Math.random() * 0.03 + 0.005,
+          speed: Math.random() * 0.015 + 0.005,
+          twinkleSpeed: Math.random() * 0.02 + 0.005,
           twinkleFactor: Math.random() > 0.5 ? 1 : -1,
+          colorBase: color
         });
       }
     };
 
     initStars();
 
-    // Create a shooting star
     const createShootingStar = () => {
-      if (Math.random() > 0.98 && shootingStars.length < 3) {
+      if (Math.random() > 0.985 && shootingStars.length < 3) {
         shootingStars.push({
           x: Math.random() * width,
           y: Math.random() * (height / 2),
-          length: Math.random() * 80 + 40,
-          speed: Math.random() * 8 + 4,
-          angle: (Math.random() * 15 + 15) * (Math.PI / 180), // 15-30 degrees
+          length: Math.random() * 90 + 40,
+          speed: Math.random() * 6 + 4,
+          angle: (Math.random() * 15 + 15) * (Math.PI / 180),
           opacity: 1,
-          thickness: Math.random() * 1.5 + 0.5,
+          thickness: Math.random() * 1.2 + 0.4,
         });
       }
     };
 
-    // Animation Loop
     const draw = () => {
-      // Clear with very slight alpha for trail effect on shooting stars
-      ctx.fillStyle = 'rgba(11, 8, 27, 0.2)';
+      // Clear with slight trail for shooting stars
+      ctx.fillStyle = 'rgba(3, 2, 10, 0.18)';
       ctx.fillRect(0, 0, width, height);
 
-      // Draw subtle nebula glow in corners
-      const grad = ctx.createRadialGradient(
-        width * 0.2,
-        height * 0.2,
-        0,
-        width * 0.2,
-        height * 0.2,
-        Math.max(width, height) * 0.6
+      nebulaTime += 0.001;
+
+      // 1. Dynamic breathing nebula clouds (luxury gradient layers)
+      const neb1X = width * 0.25 + Math.sin(nebulaTime * 0.7) * 80;
+      const neb1Y = height * 0.3 + Math.cos(nebulaTime * 0.5) * 80;
+      const neb1Grad = ctx.createRadialGradient(
+        neb1X, neb1Y, 0,
+        neb1X, neb1Y, Math.max(width, height) * 0.55
       );
-      grad.addColorStop(0, 'rgba(88, 28, 135, 0.15)'); // deep purple
-      grad.addColorStop(0.5, 'rgba(13, 27, 42, 0.05)');
-      grad.addColorStop(1, 'rgba(11, 8, 27, 0)');
-      ctx.fillStyle = grad;
+      neb1Grad.addColorStop(0, 'rgba(88, 28, 135, 0.14)'); // Royal violet
+      neb1Grad.addColorStop(0.5, 'rgba(15, 13, 26, 0.04)');
+      neb1Grad.addColorStop(1, 'rgba(3, 2, 10, 0)');
+      ctx.fillStyle = neb1Grad;
       ctx.fillRect(0, 0, width, height);
 
-      const grad2 = ctx.createRadialGradient(
-        width * 0.8,
-        height * 0.8,
-        0,
-        width * 0.8,
-        height * 0.8,
-        Math.max(width, height) * 0.5
+      const neb2X = width * 0.75 + Math.cos(nebulaTime * 0.6) * 100;
+      const neb2Y = height * 0.75 + Math.sin(nebulaTime * 0.8) * 100;
+      const neb2Grad = ctx.createRadialGradient(
+        neb2X, neb2Y, 0,
+        neb2X, neb2Y, Math.max(width, height) * 0.45
       );
-      grad2.addColorStop(0, 'rgba(6, 182, 212, 0.1)'); // cyan glow
-      grad2.addColorStop(0.5, 'rgba(11, 8, 27, 0.02)');
-      grad2.addColorStop(1, 'rgba(11, 8, 27, 0)');
-      ctx.fillStyle = grad2;
+      neb2Grad.addColorStop(0, 'rgba(212, 175, 55, 0.06)'); // Soft gold stardust
+      neb2Grad.addColorStop(0.5, 'rgba(3, 2, 10, 0.02)');
+      neb2Grad.addColorStop(1, 'rgba(3, 2, 10, 0)');
+      ctx.fillStyle = neb2Grad;
       ctx.fillRect(0, 0, width, height);
 
-      // Draw and update normal stars
+      // 2. Draw static background stars
       stars.forEach((star) => {
-        // Twinkle effect
         star.opacity += star.twinkleSpeed * star.twinkleFactor;
-        if (star.opacity > 1) {
-          star.opacity = 1;
+        if (star.opacity > 0.9) {
+          star.opacity = 0.9;
           star.twinkleFactor = -1;
-        } else if (star.opacity < 0.1) {
-          star.opacity = 0.1;
+        } else if (star.opacity < 0.15) {
+          star.opacity = 0.15;
           star.twinkleFactor = 1;
         }
 
-        ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+        ctx.fillStyle = `${star.colorBase}${star.opacity})`;
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
         ctx.fill();
 
-        // Slow drift
+        // Slow cosmic drift
         star.y -= star.speed;
         if (star.y < 0) {
           star.y = height;
@@ -119,10 +124,10 @@ const StarryBackground = () => {
         }
       });
 
-      // Draw and update shooting stars
+      // 3. Shooting stars
       createShootingStar();
       shootingStars.forEach((s, idx) => {
-        ctx.strokeStyle = `rgba(255, 255, 255, ${s.opacity})`;
+        ctx.strokeStyle = `rgba(212, 175, 55, ${s.opacity})`; // Glowing gold trajectories
         ctx.lineWidth = s.thickness;
         ctx.beginPath();
         ctx.moveTo(s.x, s.y);
@@ -132,12 +137,10 @@ const StarryBackground = () => {
         );
         ctx.stroke();
 
-        // Update positions
         s.x += s.speed * Math.cos(s.angle);
         s.y += s.speed * Math.sin(s.angle);
         s.opacity -= 0.015;
 
-        // Clean up finished shooting stars
         if (s.opacity <= 0 || s.x > width || s.y > height) {
           shootingStars.splice(idx, 1);
         }
@@ -163,9 +166,9 @@ const StarryBackground = () => {
         left: 0,
         width: '100%',
         height: '100%',
-        zIndex: -1,
+        zIndex: -2,
         pointerEvents: 'none',
-        background: '#0b081b',
+        background: '#03020a',
       }}
     />
   );

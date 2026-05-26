@@ -8,7 +8,7 @@ import RegistryDatabase from './components/RegistryDatabase';
 import GiftViewer from './components/GiftViewer';
 import { Compass, Database, Home, Globe } from 'lucide-react';
 
-const MOCK_REGISTRY_KEY = 'cosmos_registry_records';
+const MOCK_REGISTRY_KEY = 'cosmos_registry_records_usd';
 
 const INITIAL_MOCK_REGISTRY = [
   {
@@ -16,60 +16,59 @@ const INITIAL_MOCK_REGISTRY = [
     bodyId: 'moon',
     bodyName: 'Луна',
     coordinate: 'A-3',
-    packageName: '12 Акров (Королевский)',
-    price: 7490,
+    packageName: '14 Акров (Герцогство)',
+    price: 549,
     registryId: 'CR-A-3-88204',
     date: '20.07.1969',
     dedication: 'Один маленький шаг для человека, но гигантский скачок для всего человечества.',
-    theme: 'gold',
+    theme: 'classic-gold',
   },
   {
     owner: 'Илон Маск',
     bodyId: 'mars',
     bodyName: 'Марс',
     coordinate: 'D-8',
-    packageName: '50 Акров (Имперский)',
-    price: 24990,
+    packageName: '49 Акров (Суверенная колония)',
+    price: 1699,
     registryId: 'CR-D-8-44109',
     date: '14.03.2002',
     dedication: 'Я бы хотел умереть на Марсе, но только не от удара о поверхность.',
-    theme: 'cyber',
+    theme: 'minimal-onyx',
   },
   {
     owner: 'Юрий Гагарин',
     bodyId: 'moon',
     bodyName: 'Луна',
     coordinate: 'G-2',
-    packageName: '7 Акров (Семейный)',
-    price: 4990,
+    packageName: '7 Акров (Королевское поместье)',
+    price: 299,
     registryId: 'CR-G-2-12044',
     date: '12.04.1961',
-    dedication: 'Облетев Землю в корабле-спутнике, я увидел, как прекрасна наша планета. Люди, будем хранить и приумножать эту красоту, а не разрушать ее!',
-    theme: 'stellar',
+    dedication: 'Облетев Землю в корабле-спутнике, я увидел, как прекрасна наша планета. Люди, будем хранить и приумножать эту красоту!',
+    theme: 'classic-gold',
   },
   {
     owner: 'Алексей и Мария',
     bodyId: 'stars',
-    bodyName: 'Звезда',
+    bodyName: 'Именная Звезда',
     coordinate: 'E-5',
-    packageName: '3 Акра (Подарочный)',
-    price: 3490,
+    packageName: '4 Акра (Семейное владение)',
+    price: 179,
     registryId: 'CR-E-5-30012',
     date: '14.02.2025',
     dedication: 'Наша любовь горит ярче всех созвездий во Вселенной. Эта звезда принадлежит тебе, моя любимая.',
-    theme: 'stellar',
+    theme: 'classic-gold',
   },
 ];
 
 function App() {
-  const [page, setPage] = useState('home'); // 'home', 'explore', 'customizer', 'checkout', 'registry', 'gift-viewer'
+  const [page, setPage] = useState('home');
   const [registry, setRegistry] = useState([]);
-  const [selectedPlot, setSelectedPlot] = useState(null); // Selected plot from explorer
-  const [customizedOrder, setCustomizedOrder] = useState(null); // Customized certificate info
-  const [selectedBodyId, setSelectedBodyId] = useState('moon'); // Body ID selected for redirection
+  const [selectedPlot, setSelectedPlot] = useState(null);
+  const [customizedOrder, setCustomizedOrder] = useState(null);
+  const [selectedBodyId, setSelectedBodyId] = useState('moon');
   const [giftIdParam, setGiftIdParam] = useState(null);
 
-  // Initialize registry from LocalStorage or mock data
   useEffect(() => {
     const savedRegistry = localStorage.getItem(MOCK_REGISTRY_KEY);
     if (savedRegistry) {
@@ -79,7 +78,6 @@ function App() {
       localStorage.setItem(MOCK_REGISTRY_KEY, JSON.stringify(INITIAL_MOCK_REGISTRY));
     }
 
-    // Check URL parameters for ?gift=CR-XX-XXXXX
     const params = new URLSearchParams(window.location.search);
     const giftId = params.get('gift');
     if (giftId) {
@@ -88,7 +86,6 @@ function App() {
     }
   }, []);
 
-  // Sync state changes back to LocalStorage
   const handleAddNewPurchase = (newRecord) => {
     const updated = [newRecord, ...registry];
     setRegistry(updated);
@@ -100,7 +97,6 @@ function App() {
       setSelectedBodyId(options.bodyId);
     }
     
-    // Clear temp states on page switch
     if (targetPage === 'home' || targetPage === 'explore') {
       setSelectedPlot(null);
       setCustomizedOrder(null);
@@ -113,19 +109,16 @@ function App() {
   const handleLocatePlotOnMap = (bodyId, coordinate) => {
     setSelectedBodyId(bodyId);
     setPage('explore');
-    // Scroll slightly to let them see explorer
     setTimeout(() => {
-      const cellElement = document.querySelector('.celestial-svg-grid');
+      const cellElement = document.querySelector('.explorer-globe-viewport');
       if (cellElement) {
         cellElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }, 100);
   };
 
-  // Get statistics
   const getStats = () => {
     const totalSold = registry.length;
-    // Calculate unique owners
     const owners = new Set(registry.map(item => item.owner));
     return {
       totalSold,
@@ -135,15 +128,13 @@ function App() {
 
   return (
     <div className="app-layout">
-      {/* Dynamic Star Background on Canvas */}
       <StarryBackground />
 
-      {/* Main Glowing Header Navigation */}
       {page !== 'gift-viewer' && (
         <nav className="main-navbar glass-card">
           <div className="nav-logo" onClick={() => handleNavigate('home')}>
-            <Globe className="logo-icon text-neon-cyan" />
-            <span className="logo-text">Cosmos<span className="text-neon-pink">Registry</span></span>
+            <Globe className="logo-icon text-gold" />
+            <span className="logo-text">Cosmos<span className="text-gold">Registry</span></span>
           </div>
 
           <div className="nav-links">
@@ -151,28 +142,27 @@ function App() {
               className={`nav-link-btn ${page === 'home' ? 'active-link' : ''}`}
               onClick={() => handleNavigate('home')}
             >
-              <Home size={16} />
+              <Home size={14} />
               <span>Главная</span>
             </button>
             <button 
               className={`nav-link-btn ${page === 'explore' ? 'active-link' : ''}`}
               onClick={() => handleNavigate('explore')}
             >
-              <Compass size={16} />
+              <Compass size={14} />
               <span>Исследовать</span>
             </button>
             <button 
               className={`nav-link-btn ${page === 'registry' ? 'active-link' : ''}`}
               onClick={() => handleNavigate('registry')}
             >
-              <Database size={16} />
+              <Database size={14} />
               <span>Реестр</span>
             </button>
           </div>
         </nav>
       )}
 
-      {/* Dynamic Render Pages */}
       <main className="content-container">
         {page === 'home' && (
           <Hero 
@@ -234,7 +224,6 @@ function App() {
         )}
       </main>
 
-      {/* Main Footer */}
       {page !== 'gift-viewer' && (
         <footer className="main-footer glass-card">
           <p>© 2026 CosmosRegistry Inc. Все права защищены.</p>
