@@ -1,0 +1,79 @@
+.ambient-bg-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1; /* Behind everything */
+  overflow: hidden;
+  background-color: transparent;
+}
+
+.ambient-base {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.6;
+  animation: floatOrb 20s infinite ease-in-out alternate;
+  mix-blend-mode: screen;
+}
+
+.orb-1 {
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, rgba(139, 92, 246, 0) 70%);
+  top: -10%;
+  left: -10%;
+  animation-duration: 25s;
+}
+
+.orb-2 {
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(circle, rgba(0, 242, 254, 0.3) 0%, rgba(0, 242, 254, 0) 70%);
+  bottom: -20%;
+  right: -10%;
+  animation-duration: 22s;
+  animation-direction: alternate-reverse;
+}
+
+.orb-3 {
+  width: 40vw;
+  height: 40vw;
+  background: radial-gradient(circle, rgba(236, 72, 153, 0.25) 0%, rgba(236, 72, 153, 0) 70%);
+  top: 40%;
+  left: 60%;
+  animation-duration: 28s;
+}
+
+.orb-4 {
+  width: 70vw;
+  height: 40vw;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0) 70%); /* Subtle emerald hint for variation */
+  top: 20%;
+  left: 10%;
+  animation-duration: 30s;
+  animation-direction: alternate-reverse;
+}
+
+@keyframes floatOrb {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(5%, 10%) scale(1.1); }
+  66% { transform: translate(-5%, 5%) scale(0.9); }
+  100% { transform: translate(10%, -5%) scale(1.05); }
+}
+
+.glass-noise-overlay {
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  z-index: 1; /* Over the orbs, under the UI */
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
