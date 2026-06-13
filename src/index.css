@@ -3021,3 +3021,185 @@ a, button, input, textarea, select,
   }
 }
 @keyframes rotate-planet { 0% { transform: translateX(-50%) rotate(0deg); } 100% { transform: translateX(-50%) rotate(360deg); } }
+
+/* ==========================================================================
+   MOBILE RESPONSIVE OPTIMIZATIONS (screens <= 640px and <= 480px)
+   ========================================================================== */
+
+/* 1. Global & Pointer Events fixes */
+.ambient-bg-wrapper,
+.ambient-base,
+.explorer-container-lux::before,
+.hero-ambient-planet-wrapper {
+  pointer-events: none !important;
+}
+
+@media (max-width: 640px) {
+  .content-container {
+    width: 95% !important;
+    margin: 80px auto 24px auto !important;
+  }
+  
+  .glass-card,
+  .customizer-form-lux,
+  .explorer-details-panel-lux,
+  .checkout-info-panel-lux,
+  .checkout-form-panel-lux {
+    padding: 16px !important;
+  }
+
+  /* 2. Navigation Bar compacting */
+  .main-navbar {
+    width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+    border-radius: 0 !important;
+    padding: 10px 14px !important;
+    box-sizing: border-box !important;
+  }
+  .nav-arrows {
+    display: none !important;
+  }
+  .nav-logo-group {
+    gap: 8px !important;
+  }
+  .logo-text {
+    font-size: 1.1rem !important;
+  }
+  .nav-link-btn span {
+    display: none !important;
+  }
+  .nav-link-btn {
+    padding: 8px !important;
+    margin: 0 4px !important;
+  }
+
+  /* 3. Hero section compacting */
+  .hero-title-lux {
+    font-size: 2.1rem !important;
+    line-height: 1.25 !important;
+  }
+  .hero-subtitle-lux {
+    font-size: 0.95rem !important;
+    margin-bottom: 24px !important;
+  }
+  .stats-luxury-row,
+  .feature-pitch-grid {
+    gap: 12px !important;
+  }
+
+  /* 4. Celestial Explorer compacting */
+  .explorer-header-tabs {
+    gap: 0.5rem !important;
+    padding: 0 0.2rem !important;
+    margin: 0 auto 1.2rem auto !important;
+    flex-wrap: wrap !important;
+  }
+  .tab-btn-lux {
+    font-size: 0.85rem !important;
+    padding: 8px 4px !important;
+  }
+  .explorer-globe-viewport {
+    height: 320px !important;
+  }
+  .lux-planet-header-title {
+    font-size: 1.8rem !important;
+  }
+  .lux-planet-header-sub {
+    font-size: 0.85rem !important;
+  }
+  .body-description-lux {
+    font-size: 0.85rem !important;
+    line-height: 1.45 !important;
+  }
+  .coordinate-focus-box {
+    padding: 12px !important;
+  }
+  .coordinate-title-lux {
+    font-size: 1.5rem !important;
+  }
+  
+  /* Status boxes */
+  .status-box-available,
+  .status-box-sold {
+    padding: 12px !important;
+    margin-top: 12px !important;
+  }
+  .sold-warning-tag,
+  .available-success-tag {
+    font-size: 0.8rem !important;
+    padding: 4px 8px !important;
+  }
+  
+  /* Package cards inside Celestial Explorer */
+  .package-options-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+  .package-card-lux {
+    padding: 10px 4px !important;
+    font-size: 0.8rem !important;
+  }
+  .package-card-lux .pkg-size {
+    font-size: 0.95rem !important;
+  }
+  
+  /* 5. Customizer Page flow */
+  .customizer-container-lux {
+    flex-direction: column !important; /* form on top, preview below for better mobile flow */
+    gap: 20px !important;
+  }
+  .customizer-form-lux {
+    width: 100% !important;
+  }
+  .customizer-preview-lux {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  /* 6. Checkout simulator layout */
+  .checkout-split-lux {
+    flex-direction: column !important;
+    gap: 20px !important;
+  }
+  .checkout-form-panel-lux,
+  .checkout-info-panel-lux {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Ultra-compact fonts and grids for small screens */
+  .hero-title-lux {
+    font-size: 1.85rem !important;
+  }
+  .logo-text {
+    font-size: 1rem !important;
+  }
+  .nav-logo-group svg {
+    width: 16px;
+    height: 16px;
+  }
+  .package-options-grid {
+    grid-template-columns: 1fr !important; /* stack packages on tiny screens */
+  }
+  .form-row-lux {
+    grid-template-columns: 1fr !important; /* stack expiry and cvc */
+    gap: 12px !important;
+  }
+  .btn-lux {
+    padding: 12px 20px !important;
+    font-size: 0.85rem !important;
+  }
+  .ledger-body-row {
+    grid-template-columns: 1fr !important;
+    text-align: center;
+  }
+  .ledger-body-row span {
+    text-align: center !important;
+  }
+  .ledger-body-row button {
+    grid-column: span 1 !important;
+  }
+}
