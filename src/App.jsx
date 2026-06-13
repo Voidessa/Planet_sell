@@ -106,6 +106,14 @@ function App() {
 
   useEffect(() => {
     const bindGlassTilt = () => {
+      // Disable glass tilt/glare effect on touch/coarse-pointer devices to prevent mobile jitter
+      const isTouchDevice = 
+        ('ontouchstart' in window) || 
+        (navigator.maxTouchPoints > 0) || 
+        (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+      
+      if (isTouchDevice) return;
+
       const cards = document.querySelectorAll(
         '.glass-card:not(.main-navbar):not(.main-footer), .planet-card, .hiw-step-card, .feature-lux-card, .stat-lux-card'
       );

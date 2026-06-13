@@ -108,25 +108,9 @@ const TwoDMapViewer = ({ bodyId, registry, selectedCoordinate, onSelectCoordinat
   };
 
   return (
-    <div className="fullscreen-overlay animate-fade-in" style={{
-      position: 'fixed',
-      top: 0, left: 0, right: 0, bottom: 0,
-      backgroundColor: 'rgba(3, 2, 10, 0.95)',
-      zIndex: 9999,
-      display: 'flex',
-      flexDirection: 'column',
-      backdropFilter: 'blur(10px)'
-    }}>
+    <div className="twod-map-overlay animate-fade-in">
       {/* Header */}
-      <div style={{
-        padding: '20px 40px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        borderBottom: '1px solid rgba(255,255,255,0.1)',
-        background: 'rgba(0,0,0,0.5)',
-        zIndex: 10
-      }}>
+      <div className="twod-map-header">
         <div>
           <h2 className="text-gold" style={{ margin: 0, fontSize: '24px' }}>ДЕТАЛЬНАЯ 2D КАРТА</h2>
           <p style={{ margin: '5px 0 0 0', opacity: 0.8, fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -155,98 +139,96 @@ const TwoDMapViewer = ({ bodyId, registry, selectedCoordinate, onSelectCoordinat
       </div>
 
       {/* Main Content Area (Map + Panel) */}
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+      <div className="twod-map-body">
         
         {/* Scrollable Viewport */}
         <div 
           ref={scrollRef}
-        style={{
-          flex: 1,
-          overflow: 'auto',
-          cursor: isDragging ? 'grabbing' : 'grab',
-          position: 'relative'
-        }}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-      >
-        {/* Massive Map Container */}
-        <div style={{
-          width: `${MAP_WIDTH}px`,
-          height: `${MAP_HEIGHT}px`,
-          backgroundImage: `url(${bodyImages[bodyId]})`,
-          backgroundSize: '100% 100%',
-          display: 'grid',
-          gridTemplateColumns: `repeat(${TOTAL_COLS}, ${CELL_SIZE}px)`,
-          gridTemplateRows: `repeat(${TOTAL_ROWS}, ${CELL_SIZE}px)`,
-          boxShadow: 'inset 0 0 100px rgba(0,0,0,0.8)'
-        }}>
-          {cells.map(cell => (
-            <div key={cell.id} style={{
-              width: '100%',
-              height: '100%',
-              position: 'relative',
-              border: cell.isSelected ? '3px solid #facc15' : '1px solid rgba(255,255,255,0.1)',
-              backgroundColor: cell.isSelected ? 'rgba(250, 204, 21, 0.15)' : (cell.isSold ? 'rgba(0,0,0,0.6)' : 'transparent'),
-              transition: 'background-color 0.2s, border 0.2s'
-            }}
-            onClick={() => {
-              if (onSelectCoordinate && !isDragging) {
-                onSelectCoordinate(cell.coord);
-              }
-            }}
-            onMouseEnter={(e) => {
-              if(!cell.isSelected && !isDragging) {
-                e.currentTarget.style.border = '2px solid white';
-                e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if(!cell.isSelected) {
-                e.currentTarget.style.border = '1px solid rgba(255,255,255,0.1)';
-                e.currentTarget.style.backgroundColor = cell.isSold ? 'rgba(0,0,0,0.6)' : 'transparent';
-              }
-            }}
-            >
-              <div style={{
-                position: 'absolute',
-                bottom: '4px',
-                right: '4px',
-                background: cell.isSelected ? '#facc15' : 'rgba(0,0,0,0.7)',
-                color: cell.isSelected ? 'black' : 'white',
-                padding: '2px 6px',
-                fontSize: '12px',
-                borderRadius: '4px',
-                fontWeight: 'bold',
-                userSelect: 'none'
-              }}>
-                {cell.coord}
-              </div>
-
-              {cell.isSold && (
+          className="twod-map-viewport"
+          style={{
+            cursor: isDragging ? 'grabbing' : 'grab'
+          }}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+        >
+          {/* Massive Map Container */}
+          <div style={{
+            width: `${MAP_WIDTH}px`,
+            height: `${MAP_HEIGHT}px`,
+            backgroundImage: `url(${bodyImages[bodyId]})`,
+            backgroundSize: '100% 100%',
+            display: 'grid',
+            gridTemplateColumns: `repeat(${TOTAL_COLS}, ${CELL_SIZE}px)`,
+            gridTemplateRows: `repeat(${TOTAL_ROWS}, ${CELL_SIZE}px)`,
+            boxShadow: 'inset 0 0 100px rgba(0,0,0,0.8)'
+          }}>
+            {cells.map(cell => (
+              <div key={cell.id} style={{
+                width: '100%',
+                height: '100%',
+                position: 'relative',
+                border: cell.isSelected ? '3px solid #facc15' : '1px solid rgba(255,255,255,0.1)',
+                backgroundColor: cell.isSelected ? 'rgba(250, 204, 21, 0.15)' : (cell.isSold ? 'rgba(0,0,0,0.6)' : 'transparent'),
+                transition: 'background-color 0.2s, border 0.2s'
+              }}
+              onClick={() => {
+                if (onSelectCoordinate && !isDragging) {
+                  onSelectCoordinate(cell.coord);
+                }
+              }}
+              onMouseEnter={(e) => {
+                if(!cell.isSelected && !isDragging) {
+                  e.currentTarget.style.border = '2px solid white';
+                  e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if(!cell.isSelected) {
+                  e.currentTarget.style.border = '1px solid rgba(255,255,255,0.1)';
+                  e.currentTarget.style.backgroundColor = cell.isSold ? 'rgba(0,0,0,0.6)' : 'transparent';
+                }
+              }}
+              >
                 <div style={{
                   position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  color: '#ef4444'
+                  bottom: '4px',
+                  right: '4px',
+                  background: cell.isSelected ? '#facc15' : 'rgba(0,0,0,0.7)',
+                  color: cell.isSelected ? 'black' : 'white',
+                  padding: '2px 6px',
+                  fontSize: '12px',
+                  borderRadius: '4px',
+                  fontWeight: 'bold',
+                  userSelect: 'none'
                 }}>
-                  <Award size={32} opacity={0.8} />
+                  {cell.coord}
                 </div>
-              )}
-            </div>
-          ))}
+
+                {cell.isSold && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    color: '#ef4444'
+                  }}>
+                    <Award size={32} opacity={0.8} />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-      
-      {/* Right Sidebar Menu (passed as children) */}
-      {children && (
-        <div style={{ width: '400px', flexShrink: 0, zIndex: 20 }}>
-          {children}
-        </div>
-      )}
-      
+        
+        {/* Right Sidebar Menu (passed as children) */}
+        {children && (
+          <div className="twod-map-sidebar">
+            {children}
+          </div>
+        )}
+        
       </div>
     </div>
   );

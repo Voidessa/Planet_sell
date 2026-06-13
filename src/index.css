@@ -3219,3 +3219,86 @@ a, button, input, textarea, select,
     grid-column: span 1 !important;
   }
 }
+
+/* ── 2D Map Viewer responsiveness ───────────────────────────────────────── */
+.twod-map-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(3, 2, 10, 0.95);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(10px);
+}
+
+.twod-map-header {
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 10;
+}
+
+.twod-map-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.twod-map-viewport {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+}
+
+.twod-map-sidebar {
+  width: 400px;
+  flex-shrink: 0;
+  z-index: 20;
+}
+
+/* Responsive styles for screens <= 992px */
+@media (max-width: 992px) {
+  .twod-map-header {
+    padding: 12px 16px;
+  }
+  .twod-map-header h2 {
+    font-size: 18px !important;
+  }
+  .twod-map-header p {
+    font-size: 11px !important;
+  }
+  .twod-map-header button {
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+  }
+
+  .twod-map-body {
+    flex-direction: column !important;
+    overflow-y: auto !important;
+  }
+
+  .twod-map-viewport {
+    height: 40vh !important; /* map viewport takes top 40% of screen height */
+    flex: none !important; /* disable flex grow to keep height fixed */
+  }
+
+  .twod-map-sidebar {
+    width: 100% !important;
+    flex-shrink: 1 !important;
+    height: auto !important;
+  }
+  
+  .twod-map-sidebar .explorer-details-panel-lux {
+    height: auto !important;
+    border-left: none !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    overflow-y: visible !important;
+    padding: 16px !important;
+  }
+}
