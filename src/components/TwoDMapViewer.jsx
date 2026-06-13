@@ -26,39 +26,110 @@ const parseCoord = (coord) => {
   return { rowIdx, colIdx };
 };
 
-const TwoDMapViewer = ({ bodyId, registry, selectedCoordinate, onSelectCoordinate, onClose, children }) => {
+const getSelectedCellCoords = (centerCoord, numAcres, totalRows = 26, totalCols = 72) => {
+  if (!centerCoord) return [];
+  const parts = centerCoord.split('-');
+  if (parts.length !== 2) return [centerCoord];
+  const rCode = parts[0];
+  const colVal = parseInt(parts[1]);
+  if (isNaN(colVal)) return [centerCoord];
+
+  let rowIdx = 0;
+  if (rCode.length === 1) {
+    rowIdx = rCode.charCodeAt(0) - 65;
+  } else if (rCode.length === 2) {
+    rowIdx = 26 + rCode.charCodeAt(1) - 65;
+  }
+  const colIdx = colVal - 1;
+
+  let w = 1, h = 1;
+  if (numAcres === 1) { w = 1; h = 1; }
+  else if (numAcres === 2) { w = 2; h = 1; }
+  else if (numAcres === 4) { w = 2; h = 2; }
+  else if (numAcres === 6) { w = 3; h = 2; }
+  else if (numAcres === 8) { w = 4; h = 2; }
+  else if (numAcres === 12) { w = 4; h = 3; }
+
+  const getRowCode = (index) => {
+    if (index < 26) return String.fromCharCode(65 + index);
+    return 'A' + String.fromCharCode(65 + index - 26);
+  };
+
+  const coords = [];
+  for (let dr = 0; dr < h; dr++) {
+    for (let dc = 0; dc < w; dc++) {
+      const r = Math.min(totalRows - 1, rowIdx + dr);
+      const c = (colIdx + dc) % totalCols;
+      coords.push(`${getRowCode(r)}-${c + 1}`);
+    }
+  }
+  return coords;
+};
+
+const getSoldCoords = (registry, bodyId) => {
+  const sold = new Set();
+  registry.filter(item => item.bodyId === bodyId).forEach(item => {
+    let acres = 1;
+    if (item.packageName) {
+      const match = item.packageName.match(/(\d+)/);
+      if (match) {
+        acres = parseInt(match[1]);
+      }
+    }
+    const coordsList = getSelectedCellCoords(item.coordinate, acres, 26, 72);
+    coordsList.forEach(c => sold.add(c));
+  });
+  return sold;
+};
+
+const TwoDMapViewer = ({ bodyId, registry, selectedCoordinate, selectedPackage, onSelectCoordinate, onClose, children }) => {
   const scrollRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [scrollStart, setScrollStart] = useState({ x: 0, y: 0 });
   
-  const CELL_SIZE = 120; // Size of each cell in pixels
-  const TOTAL_ROWS = 36;
+  const CELL_SIZE = 80; // Size of each cell in pixels (decreased from 120 to show more sections)
+  const TOTAL_ROWS = 26;
   const TOTAL_COLS = 72;
   const MAP_WIDTH = TOTAL_COLS * CELL_SIZE;
   const MAP_HEIGHT = TOTAL_ROWS * CELL_SIZE;
 
+  // Toggle map-open body class for hiding header/navbar
+  useEffect(() => {
+    document.body.classList.add('twod-map-open');
+    return () => document.body.classList.remove('twod-map-open');
+  }, []);
+
+  const numAcres = parseInt(selectedPackage || '1') || 1;
+
+  const selectedCoordsList = useMemo(() => {
+    return getSelectedCellCoords(selectedCoordinate, numAcres, TOTAL_ROWS, TOTAL_COLS);
+  }, [selectedCoordinate, numAcres, TOTAL_ROWS, TOTAL_COLS]);
+
+  const soldCoordsSet = useMemo(() => {
+    return getSoldCoords(registry, bodyId);
+  }, [registry, bodyId]);
+
   // Generate all cells
   const cells = useMemo(() => {
     const result = [];
-    const { rowIdx: selRow, colIdx: selCol } = parseCoord(selectedCoordinate);
     
     for (let r = 0; r < TOTAL_ROWS; r++) {
       for (let c = 0; c < TOTAL_COLS; c++) {
         const coord = `${getRowCode(r)}-${c + 1}`;
-        const isSelected = r === selRow && c === selCol;
-        const ownerInfo = registry.find(item => item.bodyId === bodyId && item.coordinate === coord);
+        const isSelected = selectedCoordsList.includes(coord);
+        const isSold = soldCoordsSet.has(coord);
         
         result.push({
           id: `${r}-${c}`,
           coord,
           isSelected,
-          isSold: !!ownerInfo
+          isSold
         });
       }
     }
     return result;
-  }, [selectedCoordinate, bodyId, registry]);
+  }, [selectedCoordsList, soldCoordsSet, TOTAL_ROWS, TOTAL_COLS]);
 
   // Handle ESC key to close
   useEffect(() => {
@@ -158,7 +229,8 @@ const TwoDMapViewer = ({ bodyId, registry, selectedCoordinate, onSelectCoordinat
             width: `${MAP_WIDTH}px`,
             height: `${MAP_HEIGHT}px`,
             backgroundImage: `url(${bodyImages[bodyId]})`,
-            backgroundSize: '100% 100%',
+            backgroundSize: '100% 138.46%',
+            backgroundPosition: 'center',
             display: 'grid',
             gridTemplateColumns: `repeat(${TOTAL_COLS}, ${CELL_SIZE}px)`,
             gridTemplateRows: `repeat(${TOTAL_ROWS}, ${CELL_SIZE}px)`,
@@ -214,7 +286,7 @@ const TwoDMapViewer = ({ bodyId, registry, selectedCoordinate, onSelectCoordinat
                     transform: 'translate(-50%, -50%)',
                     color: '#ef4444'
                   }}>
-                    <Award size={32} opacity={0.8} />
+                    <Award size={24} opacity={0.8} />
                   </div>
                 )}
               </div>

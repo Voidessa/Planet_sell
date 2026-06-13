@@ -8,6 +8,62 @@ import marsImg from '../assets/mars_planet.png';
 import venusImg from '../assets/venus_planet.png';
 import starsImg from '../assets/star_cluster.png';
 
+const getSelectedCellCoords = (centerCoord, numAcres, totalRows = 26, totalCols = 72) => {
+  if (!centerCoord) return [];
+  const parts = centerCoord.split('-');
+  if (parts.length !== 2) return [centerCoord];
+  const rCode = parts[0];
+  const colVal = parseInt(parts[1]);
+  if (isNaN(colVal)) return [centerCoord];
+
+  let rowIdx = 0;
+  if (rCode.length === 1) {
+    rowIdx = rCode.charCodeAt(0) - 65;
+  } else if (rCode.length === 2) {
+    rowIdx = 26 + rCode.charCodeAt(1) - 65;
+  }
+  const colIdx = colVal - 1;
+
+  let w = 1, h = 1;
+  if (numAcres === 1) { w = 1; h = 1; }
+  else if (numAcres === 2) { w = 2; h = 1; }
+  else if (numAcres === 4) { w = 2; h = 2; }
+  else if (numAcres === 6) { w = 3; h = 2; }
+  else if (numAcres === 8) { w = 4; h = 2; }
+  else if (numAcres === 12) { w = 4; h = 3; }
+
+  const getRowCode = (index) => {
+    if (index < 26) return String.fromCharCode(65 + index);
+    return 'A' + String.fromCharCode(65 + index - 26);
+  };
+
+  const coords = [];
+  for (let dr = 0; dr < h; dr++) {
+    for (let dc = 0; dc < w; dc++) {
+      const r = Math.min(totalRows - 1, rowIdx + dr);
+      const c = (colIdx + dc) % totalCols;
+      coords.push(`${getRowCode(r)}-${c + 1}`);
+    }
+  }
+  return coords;
+};
+
+const getSoldCoords = (registry, bodyId) => {
+  const sold = new Set();
+  registry.filter(item => item.bodyId === bodyId).forEach(item => {
+    let acres = 1;
+    if (item.packageName) {
+      const match = item.packageName.match(/(\d+)/);
+      if (match) {
+        acres = parseInt(match[1]);
+      }
+    }
+    const coordsList = getSelectedCellCoords(item.coordinate, acres, 26, 72);
+    coordsList.forEach(c => sold.add(c));
+  });
+  return sold;
+};
+
 const CelestialExplorer = ({ initialBodyId = 'moon', onSelectPlot, registry }) => {
   const [selectedBody, setSelectedBody] = useState(initialBodyId);
   const [selectedCoordinate, setSelectedCoordinate] = useState(null);
@@ -61,11 +117,11 @@ const CelestialExplorer = ({ initialBodyId = 'moon', onSelectPlot, registry }) =
 
   const packageOptions = {
     '1':  { size: '1 Акр',     mult: 1,    label: 'Стандарт',           popular: false },
-    '4':  { size: '4 Акра',    mult: 3.65, label: 'Семейный (-10%)',     popular: false },
-    '7':  { size: '7 Акров',   mult: 6.1,  label: 'Королевский (-20%)', popular: true  },
-    '14': { size: '14 Акров',  mult: 11.2, label: 'Герцогство (-25%)',   popular: false },
-    '21': { size: '21 Акр',    mult: 16.3, label: 'Имперский (-35%)',    popular: false },
-    '49': { size: '49 Акров',  mult: 34.5, label: 'Колония (-50%)',      popular: false },
+    '2':  { size: '2 Акра',    mult: 1.9,  label: 'Дуэт (-5%)',         popular: false },
+    '4':  { size: '4 Акра',    mult: 3.6,  label: 'Семейный (-10%)',    popular: false },
+    '6':  { size: '6 Акров',   mult: 5.1,  label: 'Премиум (-15%)',     popular: true  },
+    '8':  { size: '8 Акров',   mult: 6.4,  label: 'Королевский (-20%)', popular: false },
+    '12': { size: '12 Акров',  mult: 9.0,  label: 'Имперский (-25%)',   popular: false },
   };
 
   const getPrice = (body, pkg) => {
@@ -76,12 +132,33 @@ const CelestialExplorer = ({ initialBodyId = 'moon', onSelectPlot, registry }) =
 
   const getCoordinateStatus = () => {
     if (!selectedCoordinate) return null;
-    const match = registry.find(
-      (item) => item.bodyId === selectedBody && item.coordinate === selectedCoordinate
-    );
-    return match
-      ? { status: 'sold', owner: match.owner, dedication: match.dedication, date: match.date }
-      : { status: 'available' };
+    const numAcres = parseInt(selectedPackage || '1') || 1;
+    const selectedCoords = getSelectedCellCoords(selectedCoordinate, numAcres, 26, 72);
+    const soldCoordsSet = getSoldCoords(registry, selectedBody);
+
+    const overlappingSoldCell = selectedCoords.find(c => soldCoordsSet.has(c));
+
+    if (overlappingSoldCell) {
+      const match = registry.find(item => {
+        if (item.bodyId !== selectedBody) return false;
+        let acres = 1;
+        if (item.packageName) {
+          const m = item.packageName.match(/(\d+)/);
+          if (m) acres = parseInt(m[1]);
+        }
+        const coords = getSelectedCellCoords(item.coordinate, acres, 26, 72);
+        return coords.includes(overlappingSoldCell);
+      });
+
+      return {
+        status: 'sold',
+        owner: match ? match.owner : 'Неизвестный',
+        dedication: match ? match.dedication : '',
+        date: match ? match.date : ''
+      };
+    }
+
+    return { status: 'available' };
   };
 
   const handleBodyChange = (id) => {
@@ -149,6 +226,7 @@ const CelestialExplorer = ({ initialBodyId = 'moon', onSelectPlot, registry }) =
               bodyId={selectedBody}
               registry={registry}
               selectedCoordinate={selectedCoordinate}
+              selectedPackage={selectedPackage}
               onSelectCoordinate={(coord) => setSelectedCoordinate(coord)}
             />
           </div>
@@ -177,15 +255,17 @@ const CelestialExplorer = ({ initialBodyId = 'moon', onSelectPlot, registry }) =
             <p className="lux-planet-header-sub">{currentBody.subLux}</p>
 
             {/* Satellite photo */}
-            <div
-              className="lux-satellite-photo-card"
-              style={{ boxShadow: `0 0 25px ${currentBody.glow}` }}
-            >
-              <img
-                src={currentBody.image}
-                alt={`${currentBody.name} High Res`}
-                className="lux-satellite-photo"
-              />
+            <div className="lux-satellite-photo-card-wrapper">
+              <div
+                className="lux-satellite-photo-card"
+                style={{ boxShadow: `0 0 25px ${currentBody.glow}` }}
+              >
+                <img
+                  src={currentBody.image}
+                  alt={`${currentBody.name} High Res`}
+                  className="lux-satellite-photo"
+                />
+              </div>
               <span className="photo-badge">
                 <Eye size={12} />
                 <span>Фотофиксация со спутника</span>
@@ -277,6 +357,7 @@ const CelestialExplorer = ({ initialBodyId = 'moon', onSelectPlot, registry }) =
           bodyId={selectedBody}
           registry={registry}
           selectedCoordinate={selectedCoordinate}
+          selectedPackage={selectedPackage}
           onSelectCoordinate={(coord) => setSelectedCoordinate(coord)}
           onClose={() => setShow2DMap(false)}
         >

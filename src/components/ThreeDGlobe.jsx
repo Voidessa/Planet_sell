@@ -104,7 +104,47 @@ const createCellGeometry = (latMin, latMax, lonMin, lonMax, radius) => {
   return geom;
 };
 
-const GlobeInner = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate }) => {
+const getSelectedCellCoords = (centerCoord, numAcres, totalRows = 26, totalCols = 72) => {
+  if (!centerCoord) return [];
+  const parts = centerCoord.split('-');
+  if (parts.length !== 2) return [centerCoord];
+  const rCode = parts[0];
+  const colVal = parseInt(parts[1]);
+  if (isNaN(colVal)) return [centerCoord];
+
+  let rowIdx = 0;
+  if (rCode.length === 1) {
+    rowIdx = rCode.charCodeAt(0) - 65;
+  } else if (rCode.length === 2) {
+    rowIdx = 26 + rCode.charCodeAt(1) - 65;
+  }
+  const colIdx = colVal - 1;
+
+  let w = 1, h = 1;
+  if (numAcres === 1) { w = 1; h = 1; }
+  else if (numAcres === 2) { w = 2; h = 1; }
+  else if (numAcres === 4) { w = 2; h = 2; }
+  else if (numAcres === 6) { w = 3; h = 2; }
+  else if (numAcres === 8) { w = 4; h = 2; }
+  else if (numAcres === 12) { w = 4; h = 3; }
+
+  const getRowCode = (index) => {
+    if (index < 26) return String.fromCharCode(65 + index);
+    return 'A' + String.fromCharCode(65 + index - 26);
+  };
+
+  const coords = [];
+  for (let dr = 0; dr < h; dr++) {
+    for (let dc = 0; dc < w; dc++) {
+      const r = Math.min(totalRows - 1, rowIdx + dr);
+      const c = (colIdx + dc) % totalCols;
+      coords.push(`${getRowCode(r)}-${c + 1}`);
+    }
+  }
+  return coords;
+};
+
+const GlobeInner = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate, selectedPackage }) => {
   const texture = useLoader(THREE.TextureLoader, bodyImages[bodyId] || bodyImages.moon);
   const theme = useMemo(() => getBodyTheme(bodyId), [bodyId]);
   
@@ -113,12 +153,23 @@ const GlobeInner = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate }
   
   const [hoveredCell, setHoveredCell] = useState(null);
   
-  // Grid Lines
+  // Calculate selection sizes
+  const numAcres = parseInt(selectedPackage || '1') || 1;
+  
+  const hoveredCoordsList = useMemo(() => {
+    return getSelectedCellCoords(hoveredCell, numAcres, 26, 72);
+  }, [hoveredCell, numAcres]);
+
+  const selectedCoordsList = useMemo(() => {
+    return getSelectedCellCoords(selectedCoordinate, numAcres, 26, 72);
+  }, [selectedCoordinate, numAcres]);
+
+  // Grid Lines between -65 and 65 latitude (skipping poles)
   const gridGeo = useMemo(() => {
     const geometry = new THREE.BufferGeometry();
     const vertices = [];
     const radius = 1.002; 
-    for (let lat = -90; lat <= 90; lat += 5) {
+    for (let lat = -65; lat <= 65; lat += 5) {
       for (let lon = -180; lon < 180; lon += 5) {
         const p1 = latLonToVector3(lat, lon, radius);
         const p2 = latLonToVector3(lat, lon + 5, radius);
@@ -126,7 +177,7 @@ const GlobeInner = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate }
       }
     }
     for (let lon = -180; lon < 180; lon += 5) {
-      for (let lat = -90; lat < 90; lat += 5) {
+      for (let lat = -65; lat < 65; lat += 5) {
         const p1 = latLonToVector3(lat, lon, radius);
         const p2 = latLonToVector3(lat + 5, lon, radius);
         vertices.push(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z);
@@ -144,10 +195,16 @@ const GlobeInner = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate }
     let lon = Math.atan2(localPoint.z, -localPoint.x) * (180 / Math.PI) - 180;
     if (lon < -180) lon += 360; 
 
-    const rowIdx = Math.floor((lat + 90) / 5);
+    // Skip polar regions where grid converges
+    if (lat < -65 || lat > 65) {
+      setHoveredCell(null);
+      return;
+    }
+
+    const rowIdx = Math.floor((lat + 65) / 5);
     const colIdx = Math.floor((lon + 180) / 5);
 
-    const r = Math.max(0, Math.min(35, rowIdx));
+    const r = Math.max(0, Math.min(25, rowIdx));
     const c = Math.max(0, Math.min(71, colIdx));
 
     const rowCode = getRowCode(r);
@@ -167,11 +224,11 @@ const GlobeInner = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate }
   const renderCellHighlight = (coord, color, opacity, scaleRadius) => {
     const { rowIdx, colIdx } = parseCoord(coord);
     if (rowIdx === null) return null;
-    const latMin = -90 + rowIdx * 5;
+    const latMin = -65 + rowIdx * 5;
     const lonMin = -180 + colIdx * 5;
     const geo = createCellGeometry(latMin, latMin + 5, lonMin, lonMin + 5, scaleRadius);
     return (
-      <mesh geometry={geo}>
+      <mesh geometry={geo} key={`highlight-${coord}-${scaleRadius}`}>
         <meshBasicMaterial color={color} transparent opacity={opacity} side={THREE.DoubleSide} />
       </mesh>
     );
@@ -214,20 +271,27 @@ const GlobeInner = ({ bodyId, registry, onSelectCoordinate, selectedCoordinate }
           <lineBasicMaterial color={theme.gridColor} transparent opacity={theme.gridOpacity} />
         </lineSegments>
 
-        {registry.filter(r => r.bodyId === bodyId).map(record => (
-          <React.Fragment key={record.registryId}>
-            {renderCellHighlight(record.coordinate, theme.accent, 0.4, 1.003)}
-          </React.Fragment>
-        ))}
+        {/* Render already purchased plots from the registry (highlighting all cells in their block) */}
+        {registry.filter(r => r.bodyId === bodyId).flatMap(record => {
+          let acres = 1;
+          if (record.packageName) {
+            const m = record.packageName.match(/(\d+)/);
+            if (m) acres = parseInt(m[1]);
+          }
+          const coords = getSelectedCellCoords(record.coordinate, acres, 26, 72);
+          return coords.map(c => renderCellHighlight(c, theme.accent, 0.4, 1.003));
+        })}
 
-        {hoveredCell && renderCellHighlight(hoveredCell, '#ffffff', 0.3, 1.004)}
+        {/* Hover Highlight (white) */}
+        {hoveredCell && hoveredCoordsList.map(c => renderCellHighlight(c, '#ffffff', 0.3, 1.004))}
 
-        {selectedCoordinate && renderCellHighlight(selectedCoordinate, theme.accent, 0.6, 1.005)}
+        {/* Selection Highlight (accent color) */}
+        {selectedCoordinate && selectedCoordsList.map(c => renderCellHighlight(c, theme.accent, 0.6, 1.005))}
         
         {selectedCoordinate && (() => {
           const { rowIdx, colIdx } = parseCoord(selectedCoordinate);
           if (rowIdx === null) return null;
-          const latCenter = -90 + rowIdx * 5 + 2.5;
+          const latCenter = -65 + rowIdx * 5 + 2.5;
           const lonCenter = -180 + colIdx * 5 + 2.5;
           const pos = latLonToVector3(latCenter, lonCenter, 1.005);
           return (
