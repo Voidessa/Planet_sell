@@ -3167,6 +3167,22 @@ a, button, input, textarea, select,
   .checkout-info-panel-lux {
     width: 100% !important;
   }
+
+  /* Position live activity toast at the top under navbar on mobile, preventing overlap of bottom checkout buttons */
+  .live-activity-toast {
+    bottom: auto !important;
+    top: 72px !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    transform: translateY(-150px) !important;
+    opacity: 0 !important;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease !important;
+  }
+  .live-activity-toast.visible-toast {
+    transform: translateY(0) !important;
+    opacity: 1 !important;
+  }
 }
 
 @media (max-width: 480px) {

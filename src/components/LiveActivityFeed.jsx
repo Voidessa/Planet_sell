@@ -56,7 +56,7 @@ const LiveActivityFeed = () => {
   /* Always keep DOM mounted — only animate opacity/transform */
   return (
     <div
-      className="live-activity-toast glass-card"
+      className={`live-activity-toast glass-card ${visible ? 'visible-toast' : ''}`}
       style={{
         position: 'fixed',
         bottom: '24px',
