@@ -59,18 +59,18 @@ const StarryBackground = () => {
         shootingStars.push({
           x: Math.random() * width,
           y: Math.random() * (height / 2),
-          length: Math.random() * 90 + 40,
-          speed: Math.random() * 6 + 4,
+          speed: Math.random() * 8 + 6,
           angle: (Math.random() * 15 + 15) * (Math.PI / 180),
           opacity: 1,
-          thickness: Math.random() * 1.2 + 0.4,
+          thickness: Math.random() * 1.5 + 0.5,
+          history: [] // Track previous coordinates
         });
       }
     };
 
     const draw = () => {
-      // Clear with slight trail for shooting stars
-      ctx.fillStyle = 'rgba(3, 2, 10, 0.18)';
+      // Clear with solid black every frame to eliminate ghosting artifacts
+      ctx.fillStyle = '#000000';
       ctx.fillRect(0, 0, width, height);
 
       nebulaTime += 0.001;
@@ -126,25 +126,45 @@ const StarryBackground = () => {
 
       // 3. Shooting stars
       createShootingStar();
-      shootingStars.forEach((s, idx) => {
-        ctx.strokeStyle = `rgba(212, 175, 55, ${s.opacity})`; // Glowing gold trajectories
-        ctx.lineWidth = s.thickness;
-        ctx.beginPath();
-        ctx.moveTo(s.x, s.y);
-        ctx.lineTo(
-          s.x - s.length * Math.cos(s.angle),
-          s.y + s.length * Math.sin(s.angle)
-        );
-        ctx.stroke();
-
+      
+      // Update coordinates, add to history, fade
+      shootingStars.forEach((s) => {
+        s.history.push({ x: s.x, y: s.y });
+        if (s.history.length > 12) {
+          s.history.shift();
+        }
         s.x += s.speed * Math.cos(s.angle);
         s.y += s.speed * Math.sin(s.angle);
         s.opacity -= 0.015;
+      });
 
-        if (s.opacity <= 0 || s.x > width || s.y > height) {
-          shootingStars.splice(idx, 1);
+      // Draw trails
+      shootingStars.forEach((s) => {
+        if (s.history.length > 1) {
+          ctx.beginPath();
+          ctx.moveTo(s.history[0].x, s.history[0].y);
+          for (let i = 1; i < s.history.length; i++) {
+            ctx.lineTo(s.history[i].x, s.history[i].y);
+          }
+          
+          // Create gradient for the trail
+          const grad = ctx.createLinearGradient(
+            s.history[0].x, s.history[0].y,
+            s.x, s.y
+          );
+          grad.addColorStop(0, 'rgba(212, 175, 55, 0)'); // fade at start
+          grad.addColorStop(0.8, `rgba(212, 175, 55, ${s.opacity * 0.6})`);
+          grad.addColorStop(1, `rgba(255, 255, 255, ${s.opacity})`); // bright white head
+          
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = s.thickness;
+          ctx.lineCap = 'round';
+          ctx.stroke();
         }
       });
+
+      // Filter out offscreen or faded shooting stars safely
+      shootingStars = shootingStars.filter(s => s.opacity > 0 && s.x <= width && s.y <= height);
 
       animationFrameId = requestAnimationFrame(draw);
     };
@@ -168,7 +188,7 @@ const StarryBackground = () => {
         height: '100%',
         zIndex: -2,
         pointerEvents: 'none',
-        background: '#03020a',
+        background: '#000000',
       }}
     />
   );

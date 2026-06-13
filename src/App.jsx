@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import StarryBackground from './components/StarryBackground';
+import AmbientBackground from './components/AmbientBackground';
 import Hero from './components/Hero';
 import CelestialExplorer from './components/CelestialExplorer';
 import CertificateCustomizer from './components/CertificateCustomizer';
 import CheckoutSimulator from './components/CheckoutSimulator';
 import RegistryDatabase from './components/RegistryDatabase';
 import GiftViewer from './components/GiftViewer';
-import { Compass, Database, Home, Globe } from 'lucide-react';
+import AmbientAudio from './components/AmbientAudio';
+import LiveActivityFeed from './components/LiveActivityFeed';
+import { Compass, Database, Home, Globe, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const MOCK_REGISTRY_KEY = 'cosmos_registry_records_usd';
 
@@ -80,11 +83,75 @@ function App() {
 
     const params = new URLSearchParams(window.location.search);
     const giftId = params.get('gift');
+    const pageParam = params.get('page');
+    
     if (giftId) {
       setGiftIdParam(giftId);
       setPage('gift-viewer');
+    } else if (pageParam) {
+      setPage(pageParam);
     }
+
+    const handlePopState = (e) => {
+      if (e.state && e.state.page) {
+        setPage(e.state.page);
+        if (e.state.bodyId) setSelectedBodyId(e.state.bodyId);
+      } else {
+        setPage('home');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
+
+  useEffect(() => {
+    const bindGlassTilt = () => {
+      const cards = document.querySelectorAll(
+        '.glass-card:not(.main-navbar):not(.main-footer), .planet-card, .hiw-step-card, .feature-lux-card, .stat-lux-card'
+      );
+      cards.forEach(card => {
+        if (card.dataset.tiltBound) return;
+        card.dataset.tiltBound = 'true';
+
+        const handleMouseMove = (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          
+          const rotateX = ((y - centerY) / centerY) * -9;
+          const rotateY = ((x - centerX) / centerX) * 9;
+          
+          card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+          
+          const percentX = (x / rect.width) * 100;
+          const percentY = (y / rect.height) * 100;
+          card.style.setProperty('--glare-x', `${percentX}%`);
+          card.style.setProperty('--glare-y', `${percentY}%`);
+        };
+
+        const handleMouseLeave = () => {
+          card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+          card.style.setProperty('--glare-x', '50%');
+          card.style.setProperty('--glare-y', '50%');
+        };
+
+        card.addEventListener('mousemove', handleMouseMove);
+        card.addEventListener('mouseleave', handleMouseLeave);
+      });
+    };
+
+    bindGlassTilt();
+    
+    const observer = new MutationObserver(bindGlassTilt);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [page]);
 
   const handleAddNewPurchase = (newRecord) => {
     const updated = [newRecord, ...registry];
@@ -103,6 +170,7 @@ function App() {
     }
     
     setPage(targetPage);
+    window.history.pushState({ page: targetPage, bodyId: options.bodyId || selectedBodyId }, '', `?page=${targetPage}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -128,13 +196,35 @@ function App() {
 
   return (
     <div className="app-layout">
+      <AmbientBackground />
       <StarryBackground />
 
       {page !== 'gift-viewer' && (
         <nav className="main-navbar glass-card">
-          <div className="nav-logo" onClick={() => handleNavigate('home')}>
-            <Globe className="logo-icon text-gold" />
-            <span className="logo-text">Cosmos<span className="text-gold">Registry</span></span>
+          <div className="nav-logo-group" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <div className="nav-logo" onClick={() => handleNavigate('home')}>
+              <Globe className="logo-icon text-gold" />
+              <span className="logo-text">Cosmos<span className="text-gold">Registry</span></span>
+            </div>
+            
+            <div className="nav-arrows" style={{ display: 'flex', gap: '4px' }}>
+              <button 
+                className="nav-link-btn" 
+                onClick={() => window.history.back()}
+                style={{ padding: '6px', minHeight: 'auto' }}
+                title="Назад"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <button 
+                className="nav-link-btn" 
+                onClick={() => window.history.forward()}
+                style={{ padding: '6px', minHeight: 'auto' }}
+                title="Вперед"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
           </div>
 
           <div className="nav-links">
@@ -159,6 +249,7 @@ function App() {
               <Database size={14} />
               <span>Реестр</span>
             </button>
+            <AmbientAudio />
           </div>
         </nav>
       )}
@@ -230,6 +321,8 @@ function App() {
           <p className="footer-note">Услуга является сувенирным/подарочным продуктом. Записи хранятся в частном блокчейн-реестре.</p>
         </footer>
       )}
+
+      <LiveActivityFeed />
     </div>
   );
 }

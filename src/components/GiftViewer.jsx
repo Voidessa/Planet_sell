@@ -8,6 +8,13 @@ const GiftViewer = ({ registryId, registry, onNavigate }) => {
   const [globeScale, setGlobeScale] = useState(0.2);
   const [envelopeOpen, setEnvelopeOpen] = useState(false);
 
+  const handleOpenEnvelope = () => {
+    setEnvelopeOpen(true);
+    if (window.playCosmosSFX) {
+      window.playCosmosSFX('envelope');
+    }
+  };
+
   useEffect(() => {
     const record = registry.find((item) => item.registryId === registryId);
     if (record) {
@@ -118,7 +125,7 @@ const GiftViewer = ({ registryId, registry, onNavigate }) => {
               
               <button 
                 className="btn-lux btn-lux-primary btn-glow"
-                onClick={() => setEnvelopeOpen(true)}
+                onClick={handleOpenEnvelope}
               >
                 <MailOpen size={16} />
                 <span>Открыть поздравление</span>
@@ -157,6 +164,37 @@ const GiftViewer = ({ registryId, registry, onNavigate }) => {
                 <div className="spec-item-lux">
                   <span className="spec-lbl-lux">ЗАПИСЬ №</span>
                   <span className="spec-val-lux font-mono text-xs">{giftData.registryId}</span>
+                </div>
+              </div>
+
+              {/* Referral Promotion Loop */}
+              <div 
+                className="referral-banner-lux glass-card animate-slide-up"
+                style={{
+                  marginTop: '24px',
+                  padding: '16px',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  background: 'rgba(255, 255, 255, 0.03)',
+                  borderRadius: '8px',
+                  textAlign: 'center'
+                }}
+              >
+                <h4 style={{ margin: '0 0 4px 0', fontSize: '0.9rem', color: '#ffffff', fontWeight: '600' }}>🪐 Тоже хотите сделать космический подарок?</h4>
+                <p style={{ margin: '0 0 10px 0', fontSize: '0.78rem', color: '#94a3b8', lineHeight: '1.4' }}>Получите скидку <strong>15%</strong> на любой участок по реферальному промокоду получателя:</p>
+                <div 
+                  className="font-mono text-gold" 
+                  style={{ 
+                    display: 'inline-block',
+                    padding: '6px 16px', 
+                    background: 'rgba(3, 2, 8, 0.6)', 
+                    border: '1px dashed rgba(255, 255, 255, 0.3)', 
+                    borderRadius: '4px',
+                    fontWeight: '700',
+                    fontSize: '0.9rem',
+                    letterSpacing: '1px'
+                  }}
+                >
+                  GIFT15
                 </div>
               </div>
 
