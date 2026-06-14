@@ -76,10 +76,10 @@ const CelestialExplorer = ({ initialBodyId = 'moon', onSelectPlot, registry }) =
     moon: {
       name: 'Луна',
       titleLux: 'Л У Н А',
-      subLux: 'СЕРЕБРЯНЫЙ СПУТНИК ЗЕМЛИ',
+      subLux: 'СЕРЕБРЯНЫЙ СПУТНИК • ЭКСКЛЮЗИВНЫЙ СТАТУС',
       emoji: '🌙',
-      desc: 'Участки в районе Моря Спокойствия (Mare Tranquillitatis). Великолепный вид на Землю.',
-      price: 49,
+      desc: 'Премиальные и эксклюзивные участки в районе Моря Спокойствия. Самый статусный, престижный и узнаваемый подарок во Вселенной.',
+      price: 199,
       image: lunarImg,
       glow: 'rgba(255, 255, 255, 0.12)'
     },
@@ -88,8 +88,8 @@ const CelestialExplorer = ({ initialBodyId = 'moon', onSelectPlot, registry }) =
       titleLux: 'М А Р С',
       subLux: 'КРАСНАЯ ПЛАНЕТА • СИСТЕМА SOL',
       emoji: '🔴',
-      desc: 'Секторы в долинах Маринер или вблизи вулкана Олимп. Новый рубеж человеческой цивилизации.',
-      price: 69,
+      desc: 'Доступные секторы в долинах Маринер для будущих колонизаторов. Отличный, оригинальный и запоминающийся подарок.',
+      price: 49,
       image: marsImg,
       glow: 'rgba(239, 68, 68, 0.22)'
     },
@@ -98,8 +98,8 @@ const CelestialExplorer = ({ initialBodyId = 'moon', onSelectPlot, registry }) =
       titleLux: 'В Е Н Е Р А',
       subLux: 'ПЛАНЕТА ЛЮБВИ • УТРЕННЯЯ ЗВЕЗДА',
       emoji: '🌕',
-      desc: 'Участки на Земле Афродиты. Планета с плотной золотой атмосферой, названная в честь богини.',
-      price: 59,
+      desc: 'Бюджетные участки на Земле Афродиты. Планета любви по очень демократичной и выгодной стоимости.',
+      price: 39,
       image: venusImg,
       glow: 'rgba(245, 158, 11, 0.22)'
     },
@@ -108,8 +108,8 @@ const CelestialExplorer = ({ initialBodyId = 'moon', onSelectPlot, registry }) =
       titleLux: 'З В Е З Д А',
       subLux: 'СОЗВЕЗДИЕ ОРИОНА • СЕКТОР МЛЕЧНОГО ПУТИ',
       emoji: '⭐',
-      desc: 'Официальная именная сертификация яркой звезды с привязкой координат к вашей открытке.',
-      price: 99,
+      desc: 'Именная сертификация яркой звезды с привязкой координат к подарочной карте по доступной цене.',
+      price: 59,
       image: starsImg,
       glow: 'rgba(139, 92, 246, 0.22)'
     },
