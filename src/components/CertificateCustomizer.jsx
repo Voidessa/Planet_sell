@@ -14,7 +14,7 @@ const CertificateCustomizer = ({ plotInfo, onBack, onProceed }) => {
   const [dedication, setDedication] = useState('');
   const [theme, setTheme]           = useState('classic-gold');
   const [nameError, setNameError]   = useState('');
-  const [previewTab, setPreviewTab] = useState('all'); // 'all', 'uz', 'en', 'map'
+  const [previewTab, setPreviewTab] = useState('all'); // 'all', 'cert', 'map'
   const [usePhotoMockup, setUsePhotoMockup] = useState(true); // Default to photo mockup mode!
 
   const handleProceed = (e) => {
@@ -168,7 +168,7 @@ const CertificateCustomizer = ({ plotInfo, onBack, onProceed }) => {
       {/* ── Live Preview Certificate ─────────────── */}
       <div className="customizer-preview-lux animate-slide-up" style={{ animationDelay: '0.2s' }}>
         <div className="preview-header-lux">
-          <span className="preview-label-lux">ВЫ ПОЛУЧИТЕ КОМПЛЕКТ ИЗ 3-Х ДОКУМЕНТОВ (A3)</span>
+          <span className="preview-label-lux">ВЫ ПОЛУЧИТЕ КОМПЛЕКТ ИЗ 2-Х ДОКУМЕНТОВ (A3)</span>
           <AlertCircle size={14} className="text-slate-500" />
         </div>
 
@@ -180,21 +180,14 @@ const CertificateCustomizer = ({ plotInfo, onBack, onProceed }) => {
               className={`preview-tab-btn ${previewTab === 'all' ? 'active' : ''}`}
               onClick={() => setPreviewTab('all')}
             >
-              Все (3)
+              Все (2)
             </button>
             <button 
               type="button" 
-              className={`preview-tab-btn ${previewTab === 'uz' ? 'active' : ''}`}
-              onClick={() => setPreviewTab('uz')}
+              className={`preview-tab-btn ${previewTab === 'cert' ? 'active' : ''}`}
+              onClick={() => setPreviewTab('cert')}
             >
-              Сертификат UZ
-            </button>
-            <button 
-              type="button" 
-              className={`preview-tab-btn ${previewTab === 'en' ? 'active' : ''}`}
-              onClick={() => setPreviewTab('en')}
-            >
-              Certificate EN
+              Сертификат
             </button>
             <button 
               type="button" 
@@ -225,86 +218,8 @@ const CertificateCustomizer = ({ plotInfo, onBack, onProceed }) => {
         {/* Previews container */}
         <div className="previews-scroll-container" style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '72vh', overflowY: 'auto', paddingRight: '4px' }}>
           
-          {/* 1. UZBEK VERSION */}
-          {(previewTab === 'all' || previewTab === 'uz') && (
-            <div className={usePhotoMockup ? "certificate-card-photo-lux" : "certificate-card-lux"}>
-              {usePhotoMockup ? (
-                <img 
-                  src={lunarDeed} 
-                  alt="Lunar Deed / Официальный Сертификат" 
-                  className="cert-photo-img animate-fade-in" 
-                />
-              ) : (
-                <div className="cert-ornate-border">
-                  <div className="cert-parchment-sheet">
-                    <div className="cert-double-border-container">
-                      
-                      <div className="cert-watermark-container-new">
-                        <img 
-                          src={plotInfo.bodyId === 'moon' ? lunarImg : plotInfo.bodyId === 'mars' ? marsImg : venusImg} 
-                          alt="Watermark" 
-                          className="cert-watermark-img-new" 
-                        />
-                      </div>
-                      
-                      <div className="cert-main-content-new">
-                        <div className="cert-header-uzb">
-                          {getPlanetNameUz(plotInfo.bodyName)}DAGI YER UCHASTKASIGA EGALIK HUQUQI
-                          <br />
-                          SERTIFIKATI
-                        </div>
-                        <div className="cert-divider-line" />
-                        <div className="cert-area-text">MAYDONI: {acres} AKR</div>
-                        <div className="cert-divider-line" />
-                        <div className="cert-intro-text">
-                          Ushbu hujjat bilan quyidagi yozuv kiritilganligi tasdiqlanadi:
-                        </div>
-                        <div className="cert-owner-name-new">
-                          {ownerName.trim() ? ownerName.toUpperCase() : 'GULNOZA ABDULLAEVA'}
-                        </div>
-                        <div className="cert-body-statement">
-                          {getPlanetNameUzIn(plotInfo.bodyName)} koordinatalari <strong>{plotInfo.coordinate}</strong> bo'lgan yer uchastkasining qonuniy egasi hisoblanadi.
-                        </div>
-                        
-                        <div className="cert-footer-new">
-                          <div className="cert-footer-left-new">
-                            RECORDED IN «INTERNATIONAL<br/>DATABASE OF PLANETS, STARS &<br/>EXTRATERRESTRIAL LAND CLAIMS»<br/>BY STARS INTERNATIONAL LLC
-                          </div>
-                          
-                          <div className="cert-footer-right-new">
-                            <div style={{ marginBottom: '0.4cqi' }}>SERTIFIKAT No: CR-{plotInfo.coordinate}-9401</div>
-                            <div>SANA: {new Date().toLocaleDateString('ru-RU')}</div>
-                            <div className="cert-blue-seal-stamp">
-                              <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%' }}>
-                                <circle cx="50" cy="50" r="44" fill="none" stroke="#1b75bb" strokeWidth="2.5" />
-                                <circle cx="50" cy="50" r="37" fill="none" stroke="#1b75bb" strokeWidth="1" strokeDasharray="3,1.5" />
-                                <circle cx="50" cy="50" r="30" fill="none" stroke="#1b75bb" strokeWidth="1.5" />
-                                
-                                <path id="seal-text-path-uz" d="M 50,14 A 36,36 0 1,1 49.9,14" fill="none" />
-                                <text fill="#1b75bb" fontSize="5.5" fontWeight="bold" fontFamily="Courier New, monospace" letterSpacing="0.1">
-                                  <textPath href="#seal-text-path-uz" startOffset="0%">
-                                    * STARS INTERNATIONAL REGISTRY * RASMIY RO'YXATGA OLISH
-                                  </textPath>
-                                </text>
-                                
-                                <text x="50" y="47" textAnchor="middle" fill="#1b75bb" fontSize="9" fontWeight="bold" fontFamily="Georgia, serif" letterSpacing="1">RASMIY</text>
-                                <text x="50" y="58" textAnchor="middle" fill="#1b75bb" fontSize="8" fontWeight="bold" fontFamily="Georgia, serif" letterSpacing="1">MUHR</text>
-                                <line x1="26" y1="50" x2="74" y2="50" stroke="#1b75bb" strokeWidth="1.2" />
-                              </svg>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* 2. ENGLISH VERSION */}
-          {(previewTab === 'all' || previewTab === 'en') && (
+          {/* 1. CERTIFICATE */}
+          {(previewTab === 'all' || previewTab === 'cert') && (
             <div className={usePhotoMockup ? "certificate-card-photo-lux" : "certificate-card-lux"}>
               {usePhotoMockup ? (
                 <img 
