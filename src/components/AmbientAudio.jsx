@@ -1,83 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
+import backgroundMusic from '../assets/instupendo - comfort chain (slowed) (1).mp3';
 
 const AmbientAudio = () => {
   const [muted, setMuted] = useState(true);
+  const mutedRef = useRef(true);
   const audioCtxRef = useRef(null);
-  
-  // Oscillators and nodes for background hum
-  const humOscsRef = useRef([]);
-  const humGainRef = useRef(null);
-  const filterRef = useRef(null);
-  const lfoRef = useRef(null);
+  const audioRef = useRef(null);
 
   const initAudio = () => {
     if (audioCtxRef.current) return;
 
-    // Create AudioContext
+    // Create AudioContext for SFX
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     const ctx = new AudioContext();
     audioCtxRef.current = ctx;
 
-    // Create nodes
-    const masterGain = ctx.createGain();
-    masterGain.gain.setValueAtTime(0, ctx.currentTime);
-    masterGain.connect(ctx.destination);
-    humGainRef.current = masterGain;
-
-    // Create a lowpass filter for the hum to keep it sub-bass
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(130, ctx.currentTime);
-    filter.Q.setValueAtTime(1.5, ctx.currentTime);
-    filter.connect(masterGain);
-    filterRef.current = filter;
-
-    // Oscillators for cosmic hum: detuned sawtooths and triangle at lower octaves (A1=55Hz, E2=82.4Hz)
-    const osc1 = ctx.createOscillator();
-    osc1.type = 'sawtooth';
-    osc1.frequency.setValueAtTime(55, ctx.currentTime); // Deep hum
-    
-    const osc2 = ctx.createOscillator();
-    osc2.type = 'triangle';
-    osc2.frequency.setValueAtTime(82.41, ctx.currentTime); // Harmonic fifth
-
-    const osc3 = ctx.createOscillator();
-    osc3.type = 'sawtooth';
-    osc3.frequency.setValueAtTime(55.25, ctx.currentTime); // Chorus beat
-
-    // Connect oscillators to a pre-hum gain
-    const humOscGain = ctx.createGain();
-    humOscGain.gain.setValueAtTime(0.1, ctx.currentTime);
-    osc1.connect(humOscGain);
-    osc2.connect(humOscGain);
-    osc3.connect(humOscGain);
-    humOscGain.connect(filter);
-
-    // Create an LFO to modulate filter frequency (creates space wind sweeps)
-    const lfo = ctx.createOscillator();
-    lfo.type = 'sine';
-    lfo.frequency.setValueAtTime(0.08, ctx.currentTime); // 12-second cycle
-
-    const lfoGain = ctx.createGain();
-    lfoGain.gain.setValueAtTime(35, ctx.currentTime); // swing filter frequency by +-35Hz
-
-    lfo.connect(lfoGain);
-    lfoGain.connect(filter.frequency);
-
-    // Start oscillators
-    osc1.start();
-    osc2.start();
-    osc3.start();
-    lfo.start();
-
-    // Keep references to clean up
-    humOscsRef.current = [osc1, osc2, osc3, lfo];
-    lfoRef.current = lfo;
-
     // Define global SFX function on window object
     window.playCosmosSFX = (type) => {
-      if (ctx.state === 'suspended' || masterGain.gain.value === 0) return;
+      if (ctx.state === 'suspended' || mutedRef.current) return;
       
       try {
         const sfxGain = ctx.createGain();
@@ -163,35 +104,35 @@ const AmbientAudio = () => {
     initAudio();
     const ctx = audioCtxRef.current;
     
-    if (ctx.state === 'suspended') {
+    if (ctx && ctx.state === 'suspended') {
       ctx.resume();
     }
 
+    if (!audioRef.current) {
+      audioRef.current = new Audio(backgroundMusic);
+      audioRef.current.loop = true;
+      audioRef.current.volume = 0.3; // pleasant background volume
+    }
+
     if (muted) {
-      // Fade in background hum
-      humGainRef.current.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 1.0);
+      audioRef.current.play().catch(err => console.log("Audio play failed:", err));
       setMuted(false);
+      mutedRef.current = false;
       
-      // Brief timeout to let the fade-in begin before playing the click
       setTimeout(() => {
         if (window.playCosmosSFX) window.playCosmosSFX('click');
       }, 50);
     } else {
-      // Fade out background hum
-      humGainRef.current.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
+      audioRef.current.pause();
       setMuted(true);
+      mutedRef.current = true;
     }
   };
 
   useEffect(() => {
     return () => {
-      // Clean up oscillators on unmount
-      if (humOscsRef.current.length > 0) {
-        humOscsRef.current.forEach(osc => {
-          try {
-            osc.stop();
-          } catch(e) {}
-        });
+      if (audioRef.current) {
+        audioRef.current.pause();
       }
       if (audioCtxRef.current) {
         try {
