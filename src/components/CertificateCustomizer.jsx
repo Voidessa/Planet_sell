@@ -4,9 +4,10 @@ import ProgressStepper from './ProgressStepper';
 import lunarImg from '../assets/lunar_planet.png';
 import marsImg from '../assets/mars_planet.png';
 import venusImg from '../assets/venus_planet.png';
-import uzCertGen from '../assets/uz_cert_gen.png';
-import enCertGen from '../assets/en_cert_gen.png';
-import mapGen from '../assets/map_gen.png';
+import lunarDeed from '../assets/lunar_deed.jpg';
+import lunarMap from '../assets/lunar_map.jpg';
+import marsMap from '../assets/mars_map.jpg';
+import venusMap from '../assets/venus_map.jpg';
 
 const CertificateCustomizer = ({ plotInfo, onBack, onProceed }) => {
   const [ownerName, setOwnerName]   = useState('');
@@ -229,8 +230,8 @@ const CertificateCustomizer = ({ plotInfo, onBack, onProceed }) => {
             <div className={usePhotoMockup ? "certificate-card-photo-lux" : "certificate-card-lux"}>
               {usePhotoMockup ? (
                 <img 
-                  src={uzCertGen} 
-                  alt="Sertifikat UZ" 
+                  src={lunarDeed} 
+                  alt="Lunar Deed / Официальный Сертификат" 
                   className="cert-photo-img animate-fade-in" 
                 />
               ) : (
@@ -307,8 +308,8 @@ const CertificateCustomizer = ({ plotInfo, onBack, onProceed }) => {
             <div className={usePhotoMockup ? "certificate-card-photo-lux" : "certificate-card-lux"}>
               {usePhotoMockup ? (
                 <img 
-                  src={enCertGen} 
-                  alt="Certificate EN" 
+                  src={lunarDeed} 
+                  alt="Lunar Deed / Official Certificate" 
                   className="cert-photo-img animate-fade-in" 
                 />
               ) : (
@@ -385,8 +386,8 @@ const CertificateCustomizer = ({ plotInfo, onBack, onProceed }) => {
             <div className={usePhotoMockup ? "certificate-card-photo-lux" : "certificate-card-lux"}>
               {usePhotoMockup ? (
                 <img 
-                  src={mapGen} 
-                  alt="Map" 
+                  src={plotInfo.bodyId === 'mars' ? marsMap : plotInfo.bodyId === 'venus' ? venusMap : lunarMap} 
+                  alt={`${plotInfo.bodyName} Map / Официальная Карта`} 
                   className="cert-photo-img animate-fade-in" 
                 />
               ) : (
