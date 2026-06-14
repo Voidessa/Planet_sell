@@ -1156,7 +1156,7 @@ a, button, input, textarea, select,
 
 .lux-input:focus,
 .lux-textarea:focus {
-  outline: none; animation: rotate-planet 240s linear infinite;
+  outline: none;
   border-color: var(--gold-primary);
   box-shadow: 0 0 10px rgba(var(--glow-rgb), 0.15);
 }
@@ -1806,7 +1806,7 @@ a, button, input, textarea, select,
 }
 
 .lux-input-search:focus {
-  outline: none; animation: rotate-planet 240s linear infinite;
+  outline: none;
   border-color: var(--gold-primary);
   box-shadow: 0 0 10px rgba(var(--glow-rgb), 0.12);
 }
