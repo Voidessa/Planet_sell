@@ -84,6 +84,7 @@ const getSoldCoords = (registry, bodyId) => {
 
 const TwoDMapViewer = ({ bodyId, registry, selectedCoordinate, selectedPackage, onSelectCoordinate, onClose, children }) => {
   const scrollRef = useRef(null);
+  const dragOccurred = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [scrollStart, setScrollStart] = useState({ x: 0, y: 0 });
@@ -160,6 +161,7 @@ const TwoDMapViewer = ({ bodyId, registry, selectedCoordinate, selectedPackage, 
   }, [selectedCoordinate]);
 
   const handleMouseDown = (e) => {
+    dragOccurred.current = false;
     setIsDragging(true);
     setDragStart({ x: e.clientX, y: e.clientY });
     setScrollStart({ x: scrollRef.current.scrollLeft, y: scrollRef.current.scrollTop });
@@ -170,12 +172,41 @@ const TwoDMapViewer = ({ bodyId, registry, selectedCoordinate, selectedPackage, 
     e.preventDefault(); // Prevent text selection
     const dx = e.clientX - dragStart.x;
     const dy = e.clientY - dragStart.y;
+    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+      dragOccurred.current = true;
+    }
     scrollRef.current.scrollLeft = scrollStart.x - dx;
     scrollRef.current.scrollTop = scrollStart.y - dy;
   };
 
   const handleMouseUp = () => {
     setIsDragging(false);
+    setTimeout(() => {
+      dragOccurred.current = false;
+    }, 50);
+  };
+
+  const handleTouchStart = (e) => {
+    dragOccurred.current = false;
+    if (e.touches && e.touches[0]) {
+      setDragStart({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (e.touches && e.touches[0]) {
+      const dx = e.touches[0].clientX - dragStart.x;
+      const dy = e.touches[0].clientY - dragStart.y;
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+        dragOccurred.current = true;
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setTimeout(() => {
+      dragOccurred.current = false;
+    }, 50);
   };
 
   return (
@@ -223,6 +254,9 @@ const TwoDMapViewer = ({ bodyId, registry, selectedCoordinate, selectedPackage, 
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           {/* Massive Map Container */}
           <div style={{
@@ -246,7 +280,7 @@ const TwoDMapViewer = ({ bodyId, registry, selectedCoordinate, selectedPackage, 
                 transition: 'background-color 0.2s, border 0.2s'
               }}
               onClick={() => {
-                if (onSelectCoordinate && !isDragging) {
+                if (onSelectCoordinate && !dragOccurred.current) {
                   onSelectCoordinate(cell.coord);
                 }
               }}
